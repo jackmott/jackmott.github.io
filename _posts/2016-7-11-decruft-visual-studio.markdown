@@ -18,6 +18,12 @@ Often times performance and stability issues with Visual Studio 2015 are due to 
 and see if there is anything there that you never actually use. If so, uninstall it.  If you have used ReSharper for a long time, Visual Studio has slowly been adding a lot of the features 
 that ReSharper used to add.  If you don't need ReSharper, you can get huge improvements in responsiveness by uninstalling it. 
 
+### Disable CodeLens
+
+The CodeLens feature of Visual Studio can be quite useful, it can display various meta-data about your code, and it's state within the context of your source control.  But if you do not
+make use of it often, you can save a great deal of visual clutter, and perhaps improve the resource utilization and responsiveness of Visual Studio as well by turning it off.  You can
+disable it globally at Tools->Options->Text Editor->All Languages, or on a per-language basis if you prefer.
+
 ### Solution Explorer and Output / Error Panes
 
 ![VS-AutoHide](/images/vs-solution-explore.gif "VS AutoHide")
