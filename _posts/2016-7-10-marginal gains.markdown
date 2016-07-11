@@ -43,7 +43,7 @@ In Visual Studio you can delete entire tokens at a time with CNTRL-DEL or CNTRL-
 have a camelcase/pascalcase aware feature.  The third gif here shows Multi Line editing in action, where you can use the ALT-SHIFT selection feature and make identical changes to 
 many lines at once. Most code editors will have a feature like this, it can be very useful to learn it.
 
-There are dozens of little tracks like this available in any decent code editor. Any time you find yourself having to bang a lot of keys or use the mouse to get things done, investigate whether
+There are dozens of little tricks like this available in any decent code editor. Any time you find yourself having to bang a lot of keys or use the mouse to get things done, investigate whether
 your editor has a shortcut built in for the task, or whether you can easily add one. These will take practice to use quickly and without thinking about it, but when you build up a nice set 
 of shortcuts, such that you are rarely touching the mouse or repeating keystrokes, you will get things done faster, and more pleasantly.
  
