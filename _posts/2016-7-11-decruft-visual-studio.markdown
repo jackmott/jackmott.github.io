@@ -44,7 +44,7 @@ options under Text Editor.  For others, like Javascript, you have to turn it off
 
 ### Reduce the Margins
 
-By default there is quote a bit of horizontal space taken up by the Selection margin and the Indicator margins.  If you don't make use of these, you can go
+By default there is a lot of horizontal space taken up by the Selection and Indicator margins.  If you don't make use of these, you can go
 to Tools->Options->Text Editor->General and unselect them both.
 
 ### Cleaning up the Menu Bar
