@@ -42,11 +42,15 @@ on here.
 Hiding the code outlining graphics, if you find those useless, is a bit more tricky.  For some languages like C++ and C#, you can turn the feature off from within the language specific
 options under Text Editor.  For others, like Javascript, you have to turn it off by hand on each file with CNTRL-M CNTRL-P
 
+### Reduce the Margins
+
+By default there is quote a bit of horizontal space taken up by the Selection margin and the Indicator margins.  If you don't make use of these, you can go
+to Tools->Options->Text Editor->General and unselect them both.
 
 ### Cleaning up the Menu Bar
 
 If you have been learning your keyboard shortcuts, the icons under the menu bar should be completely useless to you, and you can remove them by right clicking empty space in that area
-and deslecting any icon groups you don't need.  This can quickly free up vertical space.  You can go even further, and hide the menu text as well with extensions like 'Hide Main Menu'. 
+and deselecting any icon groups you don't need.  This can quickly free up vertical space.  You can go even further, and hide the menu text as well with extensions like 'Hide Main Menu'. 
 You can still use the menu, as pressing the ALT key brings it back up.
 
 ### After De-Crufting
