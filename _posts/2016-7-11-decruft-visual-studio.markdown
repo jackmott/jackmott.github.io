@@ -51,7 +51,17 @@ to Tools->Options->Text Editor->General and unselect them both.
 
 If you have been learning your keyboard shortcuts, the icons under the menu bar should be completely useless to you, and you can remove them by right clicking empty space in that area
 and deselecting any icon groups you don't need.  This can quickly free up vertical space.  You can go even further, and hide the menu text as well with extensions like 'Hide Main Menu'. 
-You can still use the menu, as pressing the ALT key brings it back up.
+You can still use the menu, as pressing the ALT key brings it back up. Just go to Tools->Extensions and Updates->Online and search for 'Hide Main Menu'
+
+### Full Screen
+
+Tap ALT-SHIFT-ENTER to go into fullscreen mode, this free up some space as the window borders go away
+
+### Tab Group Jumper
+
+More of a productivity improvement than a de-crufting, but once you free up all this space, you may find you have room for 2 or 3 pages of code side by side.
+Unfortunately visual studio provides no way to jump between tab groups without the mouse.  The Tab Group Jumper extension adds this functionality. Tools->Extensions and Updates->Online
+and search for 'Tab Jumper'
 
 ### After De-Crufting
 
