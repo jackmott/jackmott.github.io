@@ -55,7 +55,7 @@ You can still use the menu, as pressing the ALT key brings it back up. Just go t
 
 ### Full Screen
 
-Tap ALT-SHIFT-ENTER to go into fullscreen mode, this free up some space as the window borders go away
+Tap ALT-SHIFT-ENTER to go into fullscreen mode, this frees up some space as the window borders go away. This also makes the icons under the menu go away.
 
 ### Tab Group Jumper
 
