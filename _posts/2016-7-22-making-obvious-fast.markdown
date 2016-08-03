@@ -12,7 +12,7 @@ Let's look at an example, comparing F# to C# and to C.
 
 Pretend we wish to take an array of 32 million numbers, and compute the sum of their squares.  The most obvious code for this in C is as follows:
 
-### ANSI C - 17 milliseconds
+### C - 17 milliseconds
 
 ``` c
     double sum = 0.0;    
@@ -26,7 +26,7 @@ Pretend we wish to take an array of 32 million numbers, and compute the sum of t
 However we can get much trickier, if we thought that this would be a performance critical piece of code, we might use SIMD intrinsics, which requires
 this nasty mess:
 
-### ANSI C - SIMD Explicit - 17 milliseconds
+### C - SIMD Explicit - 17 milliseconds
 
 ``` c
     __m256d vsum = _mm256_setzero_pd();
