@@ -42,7 +42,26 @@ this nasty mess:
 
 However, notice that the runtime is the same, for the obvious and SIMD versions!  It turns out that the obvious code was automatically turned into SIMD
 enhanced machine instructions. A process called "Auto vectorization".  Visual C++ is not known for being the most clever of C++ compilers but it still 
-gets this right.
+gets this right:
+
+``` asm
+double sum = 0.0;    
+	for (int i = 0; i < COUNT; i++) {
+00007FF7085C1120  vmovupd     ymm0,ymmword ptr [rcx]  
+00007FF7085C1124  lea         rcx,[rcx+40h]  
+		double v = values[i] * values[i];  //square em
+00007FF7085C1128  vmulpd      ymm2,ymm0,ymm0  
+00007FF7085C112C  vmovupd     ymm0,ymmword ptr [rcx-20h]  
+00007FF7085C1131  vaddpd      ymm4,ymm2,ymm4  
+00007FF7085C1135  vmulpd      ymm2,ymm0,ymm0  
+00007FF7085C1139  vaddpd      ymm3,ymm2,ymm5  
+00007FF7085C113D  vmovupd     ymm5,ymm3  
+00007FF7085C1141  sub         rdx,1  
+00007FF7085C1145  jne         imperative+80h (07FF7085C1120h)  
+		sum += v;
+	}
+
+```
 
 ### C# - 34 milliseconds
 
