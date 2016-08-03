@@ -134,7 +134,7 @@ F# could provide Streams as part of the core library (as Java does).  .NET could
 complete coverage of SIMD instructions in the Vector library.  We, the community, can help by providing libraries and submitting PRs to make the obvious 
 code faster.  Time and energy will be saved, batteries will last longer, users will be happier.
 
-### Benchmark Details For The Pedants<a name="benchmark"></a>
+### Benchmark Details <a name="benchmark"></a>
 
 All benchmarks run with the latest Microsoft compiler for each language, multiple trials, 64 bit, release mode, with all settings set for maximum speed, with
 JIT warmup time accounted for.
