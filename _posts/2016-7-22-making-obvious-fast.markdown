@@ -45,19 +45,20 @@ gets this right.
 ### C# - 34 milliseconds
 
 ``` c#
-    double sum = 0.0;    
-    for (int i = 0; i < COUNT; i++)        
+    double sum = 0.0;
+    foreach (var v in values)
     {
-        double v = values[i]*values[i];
-        sum += v;
+        double square = v * v;
+        sum += square;
     }
 ```
 
-Stepping up a level to C#, we have a fairly idiomatic solution.  Some C# programmers today might use Linq by default, which would be even slower, or 
-use an iterator, which would be slower and put pressure on the garbage collector, but this for loop wouldn't be unusual.  We see that the runtime here is twice as
-slow as the C code, and that is entirely due to not being automatically vectorized.  With the .NET JIT, it is not considered a worthwhile tradeoff to do this 
-particular optimization. Additionally, with C# you have to take some care with array access in loops, or bounds checking overhead can be introduced. In this case
-the JIT gets it right, and there is no bounds checking overhead.
+Stepping up a level to C#, we have a fairly idiomatic solution.  Some C# programmers today might use Linq, or an Enumerator by default, which would be 
+slower and put pressure on the garbage collector. This foreach loop isn't too unusual however, and saves us some typing over a for loop.  
+We see that the runtime here is twice as slow as the C code, and that is entirely due to not being automatically vectorized.  With the .NET JIT, 
+it is not considered a worthwhile tradeoff to do this particular optimization. Additionally, with C# you have to take some care with array access in loops, 
+or [bounds checking overhead can be introduced](http://www.codeproject.com/Articles/844781/Digging-Into-NET-Loop-Performance-Bounds-checking). 
+In this case the JIT gets it right, and there is no bounds checking overhead.
 
 ### C# SIMD Explicit - 17 milliseconds
 ``` c#
