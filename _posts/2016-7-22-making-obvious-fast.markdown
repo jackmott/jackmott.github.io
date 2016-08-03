@@ -10,7 +10,9 @@ I think these languages, with modern incarnations of their compilers, are especi
 languages today, there tend to be performance traps where the obvious, idiomatic solution is particularly bad.
 Let's look at an example, comparing F# to C# and to C.
 
-Pretend we wish to take an array of 32 million numbers, and compute the sum of their squares.  The most obvious code for this in C is as follows:
+Pretend we wish to take an array of 32 million numbers, and compute the sum of their squares. The most obvious code for this in C is as follows:
+
+* [Benchmark Details](#benchmark)
 
 ### C - 17 milliseconds
 
@@ -131,4 +133,28 @@ Java could (and will, soon) provide value types (as C# does) to make it less pai
 F# could provide Streams as part of the core library (as Java does).  .NET could auto vectorize code in the JIT (as Java does, to a degree) and/or provide more 
 complete coverage of SIMD instructions in the Vector library.  We, the community, can help by providing libraries and submitting PRs to make the obvious 
 code faster.  Time and energy will be saved, batteries will last longer, users will be happier.
+
+### Benchmark Details For The Pedants<a name="benchmark"></a>
+
+All benchmarks run with the latest Microsoft compiler for each language, multiple trials, 64 bit, release mode, with all settings set for maximum speed, with
+JIT warmup time accounted for.
+
+#### Environment
+```ini
+Host Process Environment Information:
+BenchmarkDotNet=v0.9.8.0
+OS=Microsoft Windows NT 6.2.9200.0
+Processor=Intel(R) Core(TM) i7-4712HQ CPU 2.30GHz, ProcessorCount=8
+Frequency=2240907 ticks, Resolution=446.2479 ns, Timer=TSC
+```
+
+#### F# / C# Runtime Details
+```ini
+CLR=MS.NET 4.0.30319.42000, Arch=64-bit RELEASE [RyuJIT]
+GC=Concurrent Workstation
+JitModules=clrjit-v4.6.1590.0
+Type=SIMDBenchmark  Mode=Throughput  Platform=X64  
+Jit=RyuJit  GarbageCollection=Concurrent Workstation  
+
+```
 
