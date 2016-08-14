@@ -61,7 +61,7 @@ let filter f (array: _[]) =
 
 This allocates an array of booleans the same length as the input up front, which are usually stored as bytes in .NET.  So in the common case, where
 you have a 32bit or 64bit pointer, int, or float, as your array element, it will allocate no more than 1/8 to 1/4 of your array size in extra
-data instead of 3x to 4x. Reducing GC pressure is a big win with garbage collected languages so that seemed like good. There are some gotchas
+data instead of 3x to 4x. Reducing GC pressure is a big win with garbage collected languages so that seemed like a good thing. There are some gotchas
 though. The loops now both have branches in them, and they are branches that will sometimes be random, so branch prediction will miss them, and that will be
 slow.  The performance advantage also shrinks compared to the core lib as the size of the array type shrinks.  So in cases where most things are filtered,
 and the distribution of elements is somewhat random as to whether they get filtered or not, performance was sometimes worse.  Performance also differed
@@ -113,8 +113,8 @@ something more clever. I realized that one invariant here is that the result wil
 the output will be 100 elements.  So fundamentally, we shouldn't  need to use a data structures that grows. I thought about creating a struct where
 you could tag each element with a true or false on the first pass, and then copy the results into the two output arrays. But that still wastes
 array.Length bytes of memory.  Then I had a great idea, maybe my best idea!  Allocate an array the same size and type as the input, and put all the true 
-elements on the left, and all the false elements on the right! The only memory wasted is an extra int to keep track of the the where one set begins and the
-other ends.  You then just copy the left side of the array into the first result, and the reverse of the right side of the array into the second result:
+elements on the left, and all the false elements on the right! The only memory wasted is an extra int to keep track of where one set ends and the
+other begins.  You then just copy the left side of the array into the first result, and the reverse of the right side of the array into the second result:
 
 ``` ocaml
 let partition f (array: _[]) = 
@@ -148,7 +148,7 @@ This solution runs almost 2x faster and allocates around 1/2 as much memory as t
 
 One of the performance drawbacks of most managed/safe languages is that they do array abounds checking.  This prevents you from accidentally wandering off the end
 of an array and over writing memory at random, which is a useful feature.  But it comes with a performance cost, as you end up eating some cpu cycles checking array 
-bounds each time through the loop.  The .NET Jit will identify [Some but not all](https://blogs.msdn.microsoft.com/clrcodegeneration/2009/08/13/array-bounds-check-elimination-in-the-clr/) 
+bounds each time through the loop.  The .NET JIT will identify [Some but not all](https://blogs.msdn.microsoft.com/clrcodegeneration/2009/08/13/array-bounds-check-elimination-in-the-clr/) 
 cases when these bounds checks can be eliminated.  You have to take some care to structure your loop just right, or it will be missed.  F# added some confusion
 here since their loops have different syntax than C#, and [sometimes compile strangely, or badly](https://github.com/Microsoft/visualfsharp/issues/1419). 
 You can peek at the byte code or C# equivalent representation of it with tools like [ILSpy](http://ilspy.net/)
@@ -194,7 +194,7 @@ for (int i = 0; i < array.Length; i++) {
 AHHHH, much better, and now we get array bounds elision from the JIT too.  The impact of this change can be pretty big in some cases,
 when any functions applied per array element are very simple the array bounds checking makes up a sizeable % of total run time.  In other cases
 it will be a very small impact. Array.map (fun x-> SieveofEratosthenes x) isn't going to be noticeably better. But it impacted almost all of the 
-function in the Array module, and I assume (which is dangerous) it would take some overhead out of JITing the IL as well.
+functions in the Array module, and I assume (which is dangerous) it would take some overhead out of JITing the IL as well.
 
 If you want to know for sure if the loop is doing what you want, as 32Bit JITs differ from the 64 bit one differ from Mono etc., you will need to view the dissasembly. In
 Visual Studio you can get it at from Debug -> Windows -> Disassembly while the program is running.  Here is an example of code with, and without a bounds check:
