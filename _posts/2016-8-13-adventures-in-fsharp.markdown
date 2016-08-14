@@ -199,7 +199,7 @@ functions in the Array module, and I assume (which is dangerous) it would take s
 If you want to know for sure if the loop is doing what you want, as 32Bit JITs differ from the 64 bit one differ from Mono etc., you will need to view the dissasembly. In
 Visual Studio you can get it at from Debug -> Windows -> Disassembly while the program is running.  Here is an example of code with, and without a bounds check:
 
-![Dissasmbly Example](/images/dissassembly.png) 
+![Dissasembly Example](/images/dissassembly.png) 
 
 Since this process is done in the JIT, you don't always have control over it. Sometimes you can massage your code to be sure the JIT will do the right thing,
 but sometimes you can't.  If you get desperate, write the function in C# using an unsafe loop, and call it from F#.
