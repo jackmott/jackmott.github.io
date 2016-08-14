@@ -11,8 +11,10 @@ array library after all!
 After working on an F# [SIMD Array library](https://github.com/jackmott/SIMDArray) for a while, and learning about some nice bench 
 marking tools for .NET thanks to [Jared Hester](https://twitter.com/cloudRoutine) I got the idea to try contributing to the F# core
 libraries myself.  I had been poking around in the  official [Microsoft F# repo](https://github.com/Microsoft/visualfsharp) because
-I was modeling my SIMD Library after the [core Array library](https://github.com/Microsoft/visualfsharp/blob/master/src/fsharp/FSharp.Core/array.fs), duplicating all relevant functions in SIMD form. As I got familiar with the 
-code I saw a function I thought I could speed up.
+I was modeling my SIMD Library after the [core Array library](https://github.com/Microsoft/visualfsharp/blob/master/src/fsharp/FSharp.Core/array.fs), 
+duplicating all relevant functions in SIMD form. As I got familiar with the code I saw a function I thought I could speed up. Steffen Forkmann pointed me
+to a [blog post of his](http://www.navision-blog.de/blog/2016/04/25/make-failure-great-again-a-small-journey-into-the-f-compiler/) about how to get started 
+building and contributing to the FSharp language, so I got to work.
 
 ### Array.filter    
 
@@ -343,10 +345,23 @@ automatically warm up the JIT for you, figure out how many trials need to run fo
 (though this feature has some bugs, so be careful).  It also spits out nice reports on the results in HTML, CSV, and Markdown formats.  The Markdown
 format is very handy as you can paste it into your Pull Requests. You can see a sample stub that I used [here](/src/array-perf.fs).
 
+
+### You can do this too
+
+If you are interested in improving the quality or performance of software in the world, consider doing something about it.  You do not need to be 
+highly skilled or experienced. I am just an average web developer by day, not a language architect or assembler expert or anything.  You just need some 
+patience.  Learning how a given project's repository and build process works is often the hardest part. Ask questions of the community, don't
+worry about seeming dumb. You will get less dumb every time you ask a dumb question.  Pick your favorite open source language or library, make it 
+better.  Code bases are huge and even those written by grey beard wizards will have mistakes and bottlenecks that you can find and fix.  If the code
+base is way above your head, start with improving documentation or error messages or other important but not so glamorous work.
+It is always highly appreciated, and can be a way to familiarize yourself with the project and endear yourself to the other team members. Plus it also makes
+the world a better place.
+
 ### What does this mean for FSharp
 
-The net effect of all of this for F# programs out there will vary considerably. First you need to be making use of arrays (you should! Learn about cache
-misses).  If you are using arrays and using the core library Array module, things will just go faster. Whether it makes a substantive difference
+The net effect of all of this for F# programs out there will vary considerably. For the changes I've been working on you need to be making use of arrays 
+(you should! Learn about cache misses).  There are PRs from other people for performance improvements in other areas too, which is great to see. 
+If you are using arrays and using the core library Array module, things will just go faster. Whether it makes a substantive difference
 just depends on your use case.  For fun I put together a toy example that hits a lot of the key functions that have been sped up, and compared the current
 4.4.0 Core lib against what will hopefully all get merged into 4.4.1:
 
