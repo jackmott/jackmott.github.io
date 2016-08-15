@@ -18,9 +18,9 @@ building and contributing to the FSharp language, so I got to work.
 
 ### Array.filter    
 
-This was the first function I thought I could improve, and mostly I was wrong! This function takes an array, and a predicate function, that just returns 
-true or false when given an element of the array.  The result is an array with only those elements that match the predicate. The original core lib function uses a 
-generic List, which is a .NET collection similar to a C++ Vector, an array backed List that doubles in size as you add items and fill it up.  Each time you
+This was the first function I thought I could improve, and mostly I was wrong! `Array.filter` takes an array and a predicate function as its 
+arguments and applies the function to each element of the array. The resulting array contains only the elements that satisfy the predicate.
+The original implementation used a List<T>, which is a .NET collection similar to a C++ Vector, an array backed List that doubles in size as you add items and fill it up.  Each time you
 fill it up, you have to allocate a whole new array and discard the old one.  If nothing gets filtered, and you have a worst case array length that is just over 
 a power of 2 like 1025, you could end up allocating 3,836 elements when you only needed 1025, and then you allocate another 1025 to copy the array out of the List.
 But in the best case, you allocate only a handful of bytes for List<T> overhead, when everything is filtered:
