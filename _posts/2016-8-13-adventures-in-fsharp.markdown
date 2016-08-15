@@ -21,9 +21,9 @@ building and contributing to the FSharp language, so I got to work.
 This was the first function I thought I could improve, and mostly I was wrong! `Array.filter` takes an array and a predicate function as its 
 arguments and applies the function to each element of the array. The resulting array contains only the elements that satisfy the predicate.
 The original implementation used a List<T>, which is a .NET collection similar to a C++ Vector, an array backed List that doubles in size as you add items and fill it up.  Each time you
-fill it up, you have to allocate a whole new array and discard the old one.  If nothing gets filtered, and you have a worst case array length that is just over 
-a power of 2 like 1025, you could end up allocating 3,836 elements when you only needed 1025, and then you allocate another 1025 to copy the array out of the List.
-But in the best case, you allocate only a handful of bytes for List<T> overhead, when everything is filtered:
+fill it up, you have to allocate a whole new array and discard the old one.  Which leads to a worst case scenario where if the array's length just exceeds 
+a power of 2, like 1025, and 0 elements are filtered, you end up allocating 3,836 elements when you only needed 1025. And then you allocate another 1025 
+to copy the array out of the List. But in the best case, you allocate only a handful of bytes for List<T> overhead, when everything is filtered:
 
 ``` ocaml
 let filter f (array: _[]) = 
@@ -62,11 +62,16 @@ let filter f (array: _[]) =
 This allocates an array of booleans the same length as the input up front, which are usually stored as bytes in .NET.  So in the common case, where
 you have a 32bit or 64bit pointer, int, or float, as your array element, it will allocate no more than 1/8 to 1/4 of your array size in extra
 data instead of 3x to 4x. Reducing GC pressure is a big win with garbage collected languages so that seemed like a good thing. There are some gotchas
-though. The loops now both have branches in them, and they are branches that will sometimes be random, so branch prediction will miss them, and that will be
-slow.  The performance advantage also shrinks compared to the core lib as the size of the array type shrinks.  So in cases where most things are filtered,
-and the distribution of elements is somewhat random as to whether they get filtered or not, performance was sometimes worse.  Performance also differed
-in 32bit vs 64 bit builds, and on different machines.  Benchmarking this was really hard because you have to account for different array type sizes, 
-lengths, different distribution of filtering and amount of filtering.  It didn't always win, and it was hard to decide if it was really better.
+though: 
+
+* The loops now both have branches in them.
+* The branch pattern that will sometimes be random, so branch prediction will miss them, which is slow.  
+* The performance advantage goes negative compared to the original implementation as the size of the array type shrinks.  
+
+So in cases where most things are filtered, and the distribution of elements is somewhat random as to whether they get filtered or not, 
+performance was sometimes worse.  Performance also differed in 32bit vs 64 bit builds, and on different machines.  Benchmarking this was 
+really hard because you have to account for different array type sizes, lengths, different distribution of filtering and amount of filtering.  
+It didn't always win, and it was hard to decide if it was really better.
 
 Then [Asik](https://github.com/asik) suggested a solution which ended up being the final answer:
 
@@ -207,8 +212,8 @@ but sometimes you can't.  If you get desperate, write the function in C# using a
 #### Other loop patterns to beware of in .NET:
 
 * For lops that go from 0 to anything *less* than the array length, will not get the bounds check eliminated.
-* For loops in F# that have a stride length of something other than 1, compile to slow code. Use a while loop, or tail recursion instead.
 * For loops that go backwards, will not get array bounds checking elided.
+* With for loops in F# that have a stride length of something other than 1, the compiler generates a loop that uses an Enumerator, which is much slower and generates garbage. Use a while loop, or tail recursion instead.
 * The `for x in array` syntax in F# works out fine. There may be other performance considerations but a normal for loop is generated and bounds checking is elided.
 
 *These things are all true as of 64bit RyuJIT .NET 4.6.2 and F# 4.4.0, some of them are being actively worked on and could improve soon.*
