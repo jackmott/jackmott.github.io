@@ -70,8 +70,7 @@ though:
 
 So in cases where most things are filtered, and the distribution of elements is somewhat random as to whether they get filtered or not, 
 performance was sometimes worse.  Performance also differed in 32bit vs 64 bit builds, and on different machines.  Benchmarking this was 
-really hard because you have to account for different array type sizes, lengths, different distribution of filtering and amount of filtering.  
-It didn't always win, and it was hard to decide if it was really better.
+really hard because you have to account for different array type sizes, lengths, different distribution of filtering and amount of filtering. It didn't always win, and it was hard to decide if it was really better.
 
 Then [Asik](https://github.com/asik) suggested a solution which ended up being the final answer:
 
