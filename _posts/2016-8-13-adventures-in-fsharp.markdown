@@ -9,7 +9,7 @@ Apologies to functional programming enthusiasts, what follows is a lot of impera
 array library after all!
 
 After working on an F# [SIMD Array library](https://github.com/jackmott/SIMDArray) for a while, and learning about some nice bench 
-marking tools for .NET thanks to [Jared Hester](https://twitter.com/cloudRoutine) I got the idea to try contributing to the F# core
+marking tools for .NET thanks to [Jared Hester](https://twitter.com/cloudRoutine). I got the idea to try contributing to the F# core
 libraries myself.  I had been poking around in the  official [Microsoft F# repo](https://github.com/Microsoft/visualfsharp) because
 I was modeling my SIMD Library after the [core Array library](https://github.com/Microsoft/visualfsharp/blob/master/src/fsharp/FSharp.Core/array.fs), 
 duplicating all relevant functions in SIMD form. As I got familiar with the code I saw a function I thought I could speed up. Steffen Forkmann pointed me
@@ -65,7 +65,7 @@ data instead of 3x to 4x. Reducing GC pressure is a big win with garbage collect
 though: 
 
 * The loops now both have branches in them.
-* The branch pattern that will sometimes be random, so branch prediction will miss them, which is slow.  
+* The branch pattern will sometimes be random, so branch prediction will miss them, which is slow.  
 * The performance advantage goes negative compared to the original implementation as the size of the array type shrinks.  
 
 So in cases where most things are filtered, and the distribution of elements is somewhat random as to whether they get filtered or not, 
