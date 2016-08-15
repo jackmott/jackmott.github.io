@@ -238,7 +238,7 @@ but sometimes you can't.  If you get desperate, write the function in C# using a
 
 *These things are all true as of 64bit RyuJIT .NET 4.6.2 and F# 4.4.0, some of them are being actively worked on and could improve soon.*
 
-#### Performance test results of bounds  check elision from `Array.map` with mapping function `(fun x - > x + 1)`
+#### Performance test results of bounds  check elision from `Array.map` with mapping function `(fun x -> x + 1)`
 
  Method |  Length |            Median |         StdDev | Scaled | 
 ------- |-------- |------------------ |--------------- |------- |
