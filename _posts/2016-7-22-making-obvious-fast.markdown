@@ -75,7 +75,8 @@ double sum = 0.0;
 ```
 
 Stepping up a level to C#, we have a fairly idiomatic solution.  Some C# programmers today might use Linq, or an Enumerator by default, which would be 
-slower and put pressure on the garbage collector. This foreach loop isn't too unusual however, and saves us some typing over a for loop. The  runtime here 
+slower and put pressure on the garbage collector. This foreach loop isn't too unusual however, the C# compiler compiles it down to a normal for loop when you
+use it with an array, and saves us some typing. The  runtime here 
 is twice as slow as the C code, and that is entirely due to not being automatically vectorized.  With the .NET JIT, it is not considered a worthwhile 
 tradeoff to do this particular optimization. Additionally, with C# you have to take some care with array access in loops, or [bounds checking overhead can be introduced](http://www.codeproject.com/Articles/844781/Digging-Into-NET-Loop-Performance-Bounds-checking). 
 In this case the JIT gets it right, and there is no bounds checking overhead.
