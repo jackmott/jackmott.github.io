@@ -96,6 +96,15 @@ that.  This same optimization was applied to the similar Array.choose function.
 As an aside, if your predicate is a pure function, and a fast function, you can [apply the predicate twice](https://github.com/jackmott/SIMDArray/blob/master/src/SIMDArray/SIMDArray.fs#L1076)
 to avoid any extra allocations at all. This is *very* fast for sufficiently simple predicates, like > or < comparisons.
 
+#### Performance test results for filtering 50% of random doubles on 64bit RyuJit
+
+ Method |     Median |    StdDev | Gen 0 | Gen 1 |  Gen 2 | Bytes Allocated/Op |
+------------ |----------- |---------- |------ |------ |------- |------------------- |
+  CoreFilter | 10.7906 ms | 0.2096 ms | 20.00 |     - | 314.00 |       3 953 196,34 |
+ ArrayFilter |  8.3605 ms | 0.0374 ms |     - |     - | 329.99 |       3 762 296,97 |
+  
+<br/>
+
 ### Array.partition
 
 I wasn't too happy with the filter optimization because I felt like someimtes taking a memory hit wasn't so great. So I started scanning through the library for
@@ -146,8 +155,19 @@ let partition f (array: _[]) =
     res1 , res2
 ```
 
-This solution runs almost 2x faster and allocates around 1/2 as much memory as the original solution on average.  A huge win, in every case. 
+#### Performance test results for partitioning random int arrays with predicate `(fun x -> x % 2 = 0)`
+ 
 
+ Method | ArrayLength |              Median |            StdDev | Scaled | Gen 0 | Gen 1 | Gen 2 | Bytes Allocated/Op |
+------------- |------------ |-------------------- |------------------ |------- |------ |------ |------ |------------------- |
+    Partition |          10 |         180.8758 ns |        16.3650 ns |   1.00 |  0.01 |     - |     - |             185.22 |
+ NewPartition |          10 |          76.6145 ns |         1.2114 ns |   0.42 |  0.01 |     - |     - |              90.38 |    
+    Partition |       10000 |     117,268.5175 ns |     1,064.2667 ns |   1.00 |  6.40 |     - |     - |          99,742.26 |
+ NewPartition |       10000 |      79,020.6291 ns |       474.4149 ns |   0.67 |  2.64 |     - |     - |          43,572.00 |    
+    Partition |    10000000 | 154,545,402.8213 ns | 3,116,253.3692 ns |   1.00 |     - |     - | 62.02 |      59,133,643.66 |
+ NewPartition |    10000000 |  98,768,489.7225 ns |   726,198.4079 ns |   0.64 |     - |     - | 34.00 |      29,686,956.03 |
+
+<br/>
 
 ### Adventures in IL and Dissasembly
 
@@ -211,13 +231,23 @@ but sometimes you can't.  If you get desperate, write the function in C# using a
 
 #### Other loop patterns to beware of in .NET:
 
-* For lops that go from 0 to anything *less* than the array length, will not get the bounds check eliminated.
+* For lops that go from 0 to anything *less* than the array length, will not get the bounds check elided.
 * For loops that go backwards, will not get array bounds checking elided.
 * With for loops over arrays in F# that have a stride length of something other than 1, the compiler generates a loop that uses an Enumerator, which is much slower and generates garbage. Use a while loop, or tail recursion instead.
 * The `for x in array` syntax in F# works out fine. There may be other performance considerations but a normal for loop is generated and bounds checking is elided.
 
 *These things are all true as of 64bit RyuJIT .NET 4.6.2 and F# 4.4.0, some of them are being actively worked on and could improve soon.*
 
+#### Performance test results of bounds  check elision from `Array.map` with mapping function `(fun x - > x + 1)`
+
+ Method |  Length |            Median |         StdDev | Scaled | 
+------- |-------- |------------------ |--------------- |------- |
+    Old |      10 |        17.5030 ns |      0.5275 ns |   1.00 |
+    New |      10 |        14.1205 ns |      0.4858 ns |   0.81 |
+    Old |   10000 |    10,212.8762 ns |    118.7990 ns |   1.00 |
+    New |   10000 |     8,963.2690 ns |    329.8907 ns |   0.88 |
+    
+<br/>
 
 ### Delving Into Parallel
 
@@ -301,6 +331,25 @@ let partition predicate (array : 'T[]) =
 In this case, each thread has its' own accumulator value, keeping track of their own `trueCount`. So they are free to increment it without locking.
 As threads finish, they then do a locked add, adding their own personal `trueCount` to the final result stored in `trueLength`.  This locked add only happens 
 NumThreads times, instead of array.Length times, so causes no terrible performance penalty. The final result is about 30% faster with no memory use penalty.
+
+#### Performance test results of `Array.Parallel.partition` with predicate `(fun x -> x % 2 = 0)`
+
+  Method |   Length |          Median |        StdDev | Scaled | Gen 0 | Gen 1 | Gen 2 | Bytes Allocated/Op |
+--------- |--------- |---------------- |-------------- |------- |------ |------ |------ |------------------- |
+ Original |     1000 |      21.8514 us |     0.5300 us |   1.00 |  0.16 |     - |     - |           3,471.77 |
+      New |     1000 |      20.5297 us |     0.8840 us |   0.94 |  0.17 |     - |     - |           3,489.75 |
+ Original |    10000 |     160.0466 us |     3.1249 us |   1.00 |  1.21 |     - |     - |          28,955.03 |
+      New |    10000 |     118.1885 us |     2.8572 us |   0.74 |  1.20 |     - |     - |          28,666.02 |
+ Original |   100000 |   1,282.9827 us |     7.3705 us |   1.00 |     - |     - | 10.17 |         211,334.08 |
+      New |   100000 |     917.0063 us |    17.4501 us |   0.71 |     - |     - |  7.27 |         151,441.53 |
+ Original |  1000000 |  12,467.9427 us |   728.8799 us |   1.00 |     - |     - | 65.99 |       2,353,833.73 |
+      New |  1000000 |   9,700.7108 us |   990.4339 us |   0.78 |     - |     - | 65.24 |       2,309,151.64 |
+   Scalar |  1000000 |  13,680.7468 us |   212.0151 us |   1.10 |  3.25 |     - | 37.57 |       4,361,586.45 |
+ Original | 10000000 | 125,043.1745 us | 1,753.3497 us |   1.00 |     - |     - | 35.28 |      29,670,713.02 |
+      New | 10000000 |  86,908.7271 us | 1,472.4448 us |   0.70 |     - |     - | 35.53 |      29,909,345.33 |
+
+
+<br/>
 
 ### Recursion is slower ... sometimes
 
