@@ -170,7 +170,7 @@ let partition f (array: _[]) =
 
 ### Adventures in IL and Dissasembly
 
-One of the performance drawbacks of most managed/safe languages is that they do array abounds checking.  This prevents you from accidentally wandering off the end
+One of the performance drawbacks of most managed/safe languages is that they do array bounds checking.  This prevents you from accidentally wandering off the end
 of an array and over writing memory at random, which is a useful feature.  But it comes with a performance cost, as you end up eating some cpu cycles checking array 
 bounds each time through the loop.  The .NET JIT will identify [Some but not all](https://blogs.msdn.microsoft.com/clrcodegeneration/2009/08/13/array-bounds-check-elimination-in-the-clr/) 
 cases when these bounds checks can be eliminated.  You have to take some care to structure your loop just right, or it will be missed.  F# added some confusion
