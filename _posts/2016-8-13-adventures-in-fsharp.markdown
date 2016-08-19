@@ -351,12 +351,10 @@ NumThreads times, instead of array.Length times, so causes no terrible performan
 
 ### Recursion is slower ... sometimes
 
-I have definitely run into cases where converting a recurisve F# loop into an imperative loop is marginally faster, but often there is no difference.  As 
-long as it is identified as tail recursive it will get turned into a loop. In one case the recursive version was *faster* than any imperative 
-alternative I could come up with.  Namely this one:
+Sometimes a recursive implementation will be a substantive speed hit.  While the F# compiler is very good at tail recusion optimization, turning most recursive functions into nice loops, there can still be a small to medium performance penalty in some cases.  For example, Array.compareWith got about 20% faster when converted from this recursive implementation to while loops:
 
-``` ocaml 
-let inline compareWith (comparer:'T -> 'T -> int) (array1: 'T[]) (array2: 'T[]) = 
+``` ocaml
+ let inline compareWith (comparer:'T -> 'T -> int) (array1: 'T[]) (array2: 'T[]) = 
     checkNonNull "array1" array1
     checkNonNull "array2" array2
 
@@ -376,10 +374,7 @@ let inline compareWith (comparer:'T -> 'T -> int) (array1: 'T[]) (array2: 'T[]) 
 
     loop 0
 ```
-
-Investigation of the IL revealed [*dark magiks*](/images/dark-magiks.png) being done by the compiler, having to do with invoking the comparer function a special way. 
-If anyone knows what is going on here, I'd love to learn. So keep in mind that testing and IL inspection will be necessary to know for sure if
-a recursive implementation is a problem. It may not be.
+It took some care to realize this performance improvement, early attempts were actually worse.  So keep in mind that testing and IL inspection will be necessary to know for sure if a recursive implementation is a problem. It often is not.
 
 
 ### Notes on Benchmarking
