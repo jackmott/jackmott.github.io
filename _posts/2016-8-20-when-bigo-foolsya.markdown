@@ -265,6 +265,7 @@ raw Arrays, but not with Array List or Linked List.  Whatever your language and 
     [Benchmark]
     public int ArrayListFor()
     {
+        //This is a List<T>
         var local = arrayList;
         int sum = 0;
         checked
@@ -280,6 +281,7 @@ raw Arrays, but not with Array List or Linked List.  Whatever your language and 
     [Benchmark]
     public int ArrayListForEach()
     {
+        //This is a List<T>
         var local = arrayList;
         int sum = 0;
         checked
