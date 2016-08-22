@@ -70,39 +70,42 @@ Type=Bench  Mode=Throughput
 ### Test Cases:
 
 ``` c# 
+    [Benchmark(Baseline=true)]
     public int ArrayTest()
     {
+        var local = arrayList;
         int sum = 0;
-            
         for (int i = 0; i < this.inserts; i++)
         {
-            arrayList.Insert(0, 1); //Insert the number 1 at the front
-        }            
-        
+            local.Insert(0, 1); //Insert the number 1 at the front
+        }
+
         // For loops iterate over List<T> much faster than foreach
-        for (int i = 0; i < arrayList.Count; i++)
+        for (int i = 0; i < local.Count; i++)
         {
-            sum += arrayList[i];  //do some work here so the JIT doesn't elide the loop entirely
-        } 
+            sum += local[i];  //do some work here so the JIT doesn't elide the loop entirely
+        }
         return sum;
     }
 
+    [Benchmark]
     public int ListTest()
     {
+        var local = linkedList;
         int sum = 0;
         for (int i = 0; i < this.inserts; i++)
         {
-            linkedList.AddFirst(1); //Insert the number 1 at the front
+            local.AddFirst(1); //Insert the number 1 at the front
         }
 
         // Again, iterating the fastest possible way over this collection
-        var node = linkedList.First;
-        for (int i = 0; i < linkedList.Count; i++)
+        var node = local.First;
+        for (int i = 0; i < local.Count; i++)
         {
             sum += node.Value;
             node = node.Next;
         }
-        
+
         return sum;
     }
 ```
@@ -110,39 +113,41 @@ Type=Bench  Mode=Throughput
 ### Results:
 
 
-   Method |   length | inserts |             Median |            StdDev | Scaled | Scaled-SD |
---------- |--------- |-------- |------------------- |------------------ |------- |---------- | 
- ArrayTest |      100 |       5 |     48,444.3861 ns |       892.2796 ns |   1.00 |      0.00 | 
- ListTest |      100 |       5 |     50,151.5053 ns |       760.9657 ns |   1.04 |      0.02 |
+ Method |   length | inserts |         Median |        StdDev | Scaled | Scaled-SD |    Gen 0 |    Gen 1 | Gen 2 | Bytes Allocated/Op |
+---------- |--------- |-------- |--------------- |-------------- |------- |---------- |--------- |--------- |------ |------------------- |
+ ArrayTest |      100 |       5 |     38.9983 us |     0.9040 us |   1.00 |      0.00 |        - |        - |     - |              25.10 |
+  ListTest |      100 |       5 |     51.7538 us |     1.3161 us |   1.30 |      0.04 |        - |        - |     - |              95.66 |
  
 <br/>
 
 The Array List wins by a nose. But this is a small list, Big O only tells us about performance as `n` grows large, so we should see this trend eventually reverse as `n` grows larger. 
 Let's try it:
 
-   Method |   length | inserts |             Median |            StdDev | Scaled | Scaled-SD |
---------- |--------- |-------- |------------------- |------------------ |------- |---------- |
- ArrayTest |      100 |       5 |     48,444.3861 ns |       892.2796 ns |   1.00 |      0.00 |
- ListTest |      100 |       5 |     50,151.5053 ns |       760.9657 ns |   1.04 |      0.02 |
- ArrayTest |     1000 |       5 |     50,684.3655 ns |       789.8816 ns |   1.00 |      0.00 |  
- ListTest |     1000 |       5 |     50,767.7373 ns |     1,286.6177 ns |   1.01 |      0.03 |
- ArrayTest |   100000 |       5 |    245,755.4388 ns |     1,977.3276 ns |   1.00 |      0.00 |  
- ListTest |   100000 |       5 |    320,742.1960 ns |     6,113.0416 ns |   1.30 |      0.03 |
- ArrayTest |  1000000 |       5 |  2,513,321.3530 ns |    44,784.2067 ns |   1.00 |      0.00 | 
- ListTest |  1000000 |       5 |  4,906,935.1291 ns |    72,934.6126 ns |   1.94 |      0.04 |
- ArrayTest | 10000000 |       5 | 38,271,226.8675 ns |   541,733.3497 ns |   1.00 |      0.00 |  
- ListTest | 10000000 |       5 | 49,213,935.4100 ns | 1,347,020.2229 ns |   1.28 |      0.04 |
+ Method |   length | inserts |         Median |        StdDev | Scaled | 
+---------- |--------- |-------- |--------------- |-------------- |------- |
+ ArrayTest |      100 |       5 |     38.9983 us |     0.9040 us |   1.00 |  
+  ListTest |      100 |       5 |     51.7538 us |     1.3161 us |   1.30 |  
+ ArrayTest |     1000 |       5 |     42.1585 us |     1.0770 us |   1.00 |  
+  ListTest |     1000 |       5 |     49.5561 us |     1.6787 us |   1.17 |  
+ ArrayTest |   100000 |       5 |    208.9662 us |     3.3698 us |   1.00 |  
+  ListTest |   100000 |       5 |    312.2153 us |    10.3753 us |   1.48 |  
+ ArrayTest |  1000000 |       5 |  2,179.2469 us |    36.8483 us |   1.00 |  
+  ListTest |  1000000 |       5 |  4,913.3430 us |   133.5379 us |   2.27 |  
+ ArrayTest | 10000000 |       5 | 36,103.8456 us | 1,251.5668 us |   1.00 |  
+  ListTest | 10000000 |       5 | 49,395.0839 us | 1,355.5119 us |   1.37 |  
 
 <br/>
 Here we get the result that will be counterintuitive to many. No matter how large `n` gets, the Array List still performs better overall. In order for performance to get worse, the *ratio*
-of inserts to iterations has to change, not just the length of the collection. Where the break even point occurs will depend on many factors, though a good rule of thumb suggested by 
+of inserts to iterations has to change, not just the length of the collection. Note that isn't an actual failure of Big O analysis, it is merely a common human failure in our application of it. 
+
+Where the break even point occurs will depend on many factors, though a good rule of thumb suggested by 
 [Chandler Carruth](https://www.youtube.com/watch?v=fHNmRkzxHWs) at Google is that Array Lists will outperform Linked Lists until you are inserting about an order of magnitude more often than you are iterating. 
 This rule of thumb works well in this particular case, as 10:1 is where we see Array List start to lose:
 
-  Method |   length | inserts |             Median |            StdDev | Scaled | Scaled-SD |
---------- |--------- |-------- |------------------- |------------------ |------- |---------- |
- ArrayTest |   100000 |      10 |    368,494.7954 ns |     5,721.7161 ns |   1.00 |      0.00 | 
- ListTest|   100000 |      10 |    319,103.1960 ns |     5,030.1883 ns |   0.86 |      0.02 |
+  Method |   length | inserts |             Median |            StdDev | Scaled | 
+--------- |--------- |-------- |------------------- |------------------ |------- |
+ ArrayTest |   100000 |      10 |    328,147.7954 ns |     5,721.7161 ns |   1.00 |  
+ ListTest|   100000 |      10 |    324,349.0560 ns |     5,030.1883 ns |   0.86 |  
 
 <br/>
 
@@ -156,17 +161,17 @@ pointers themselves are contiguous in memory, the objects they point to are not.
 but how does this affect the relative performance?
 
 It narrows it quite a bit, depending on the size of the objects, and the details of your hardware and software environment. Refactoring the example above to use Lists of small objects (12 bytes), the break even
-point drops to about 3 inserts per iteration:
+point drops to about 4 inserts per iteration:
 
-   Method | length | inserts |        Median |     StdDev |
------------------ |------- |-------- |-------------- |----------- |
-  ArrayListObject | 100000 |       0 |   792.1643 us |  3.4824 us |
- LinkedListObject | 100000 |       0 | 1,149.2903 us | 13.9588 us |
-  ArrayListObject | 100000 |       2 | 1,075.1108 us |  8.7059 us |
- LinkedListObject | 100000 |       2 | 1,131.9568 us | 46.8651 us |
-  ArrayListObject | 100000 |       3 | 1,211.1247 us | 13.8532 us |
- LinkedListObject | 100000 |       3 | 1,114.8678 us | 25.6749 us |
-
+  Method | length | inserts |        Median |     StdDev | Scaled | 
+---------------- |------- |-------- |-------------- |----------- |------- |
+ ArrayTestObject | 100000 |       0 |   674.1864 us | 16.5796 us |   1.00 |  
+  ListTestObject | 100000 |       0 | 1,140.9044 us | 12.5662 us |   1.67 |     
+ ArrayTestObject | 100000 |       2 |   959.0482 us | 14.5091 us |   1.00 |  
+  ListTestObject | 100000 |       2 | 1,121.5423 us | 23.0159 us |   1.17 |   
+ ArrayTestObject | 100000 |       4 | 1,230.6550 us | 20.1380 us |   1.00 |  
+  ListTestObject | 100000 |       4 | 1,142.6658 us | 23.2076 us |   0.92 |  
+ 
  <br/>
 
 Managed C# code suffers a bit in this case because iterating over this Array List incurs some unnecessary array bounds checking. C++ vector would likely fare better.  If you were really aggressive about this you
@@ -179,10 +184,10 @@ Not only will you benefit greatly from contiguous memory access, but you will po
 
   Method | length | inserts |        Median |     StdDev |
 ----------------- |------- |-------- |-------------- |----------- |
-  ArrayListObject | 100000 |      10 | 2,179.8273 us | 33.1230 us |
- LinkedListObject | 100000 |      10 | 1,154.3014 us | 16.2864 us |
-  ArrayListStruct | 100000 |      10 |   834.0004 us |  5.5715 us |
- LinkedListStruct | 100000 |      10 | 1,206.0713 us | 18.1695 us |
+  ArrayTestObject | 100000 |      10 | 2,094.8273 us | 15.6230 us |
+ ListTestObject | 100000 |      10 | 1,154.3014 us | 16.2864 us |
+  ArrayTestStruct | 100000 |      10 |   792.0004 us |  3.5715 us |
+ ListTestStruct | 100000 |      10 | 1,206.0713 us | 18.1695 us |
 
 <br/>
 
