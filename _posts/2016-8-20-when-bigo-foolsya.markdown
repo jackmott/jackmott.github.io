@@ -44,7 +44,7 @@ All that remains then to make a choice is to determine which one performs better
 | Linked List | O(n)    |  O(1)  |
 
 <br/>
-Array Lists are problematic for insertion, at a minimum it has to copy every single element in the array to move them over by 1 to make space for the inserted element, making it O(n). Sometimes it will
+Array Lists are problematic for insertion, at a minimum it has to copy every single element beyond the insertion point in the array to move them over by 1 to make space for the inserted element, making it O(n). Sometimes it will
 also have to reallocate a new, bigger array to make room for the insertion.  This doesn't change the Big O time complexity, but does take time, and waste memory.  So it seems for our use case, where
 insert happens 5 times more often than iterating, that the best choice is clear.  As long as n is large enough, Linked List should perform better overall.
 
