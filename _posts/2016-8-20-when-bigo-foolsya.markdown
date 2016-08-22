@@ -74,8 +74,9 @@ Type=Bench  Mode=Throughput
     public int ArrayTest()
     {
         var local = arrayList;
+        var localInserts = inserts;
         int sum = 0;
-        for (int i = 0; i < this.inserts; i++)
+        for (int i = 0; i < localInserts; i++)
         {
             local.Insert(0, 1); //Insert the number 1 at the front
         }
@@ -92,8 +93,9 @@ Type=Bench  Mode=Throughput
     public int ListTest()
     {
         var local = linkedList;
+        var localInserts = inserts;
         int sum = 0;
-        for (int i = 0; i < this.inserts; i++)
+        for (int i = 0; i < localInserts; i++)
         {
             local.AddFirst(1); //Insert the number 1 at the front
         }
@@ -120,7 +122,7 @@ Type=Bench  Mode=Throughput
  
 <br/>
 
-The Array List wins by a nose. But this is a small list, Big O only tells us about performance as `n` grows large, so we should see this trend eventually reverse as `n` grows larger. 
+The Array List wins by a nice margin. But this is a small list, Big O only tells us about performance as `n` grows large, so we should see this trend eventually reverse as `n` grows larger. 
 Let's try it:
 
  Method |   length | inserts |         Median |        StdDev | Scaled | 
@@ -202,19 +204,20 @@ By taking time to understand your environment, you will be aware of cases where 
 
 
 As some food for thought, here are 7 different ways to add up a list of numbers in C#, with their run times and memory costs. Notice how *much* better performing the fastest option is.
-Notice how bad the most popular method (Linq) is. Notice that the `foreach` abstraction works out well with raw Arrays, but not with Array List
-or Linked List.  Whatever your language and environment of choice is, understand these details so you can make smart default choices. 
+Checked arithmetic is used in all cases to keep the comparison with Linq fair. Notice how bad the most popular method (Linq) is. Notice that the `foreach` abstraction works out well with 
+raw Arrays, but not with Array List or Linked List.  Whatever your language and environment of choice is, understand these details so you can make smart default choices. 
 
-  Method | length |        Median |      StdDev | Scaled | Scaled-SD | Gen 0 | Gen 1 | Gen 2 | Bytes Allocated/Op |
------------------- |------- |-------------- |------------ |------- |---------- |------ |------ |------ |------------------- |
-    LinkedListLinq | 100000 | 1,020.2228 us | 175.0166 us |   1.00 |      0.00 | 58.00 |  1.00 |     - |          21,008.89 |
-      RawArrayLinq | 100000 |   648.8836 us |  14.4778 us |   0.63 |      0.06 | 29.21 |  0.57 |     - |          10,628.37 |
- LinkedListForEach | 100000 |   570.7069 us |  30.0890 us |   0.56 |      0.06 | 22.60 |  0.37 |     - |           8,168.27 |
-     LinkedListFor | 100000 |   372.5064 us |  16.9530 us |   0.36 |      0.04 | 14.78 |  0.32 |     - |           5,395.63 |
-     ArrayListForEach | 100000 |   270.6204 us |  27.6803 us |   0.27 |      0.04 |  8.92 |  0.05 |     - |           3,162.80 |
-      ArrayListFor | 100000 |    99.9233 us |  11.7005 us |   0.10 |      0.02 |  7.54 |  0.17 |     - |           2,754.28 |      
-   RawArrayForEach | 100000 |    45.2560 us |   0.5464 us |   0.04 |      0.00 |  1.97 |  0.04 |     - |             719.81 |
-       RawArrayFor | 100000 |    45.4073 us |   4.4140 us |   0.05 |      0.01 |  1.97 |  0.04 |     - |             716.41 |
+  Method | length  |      Median |     StdDev | Scaled | Scaled-SD | Gen 0 | Gen 1 | Gen 2 | Bytes Allocated/Op |
+------------------ |------- |------------ |----------- |------- |---------- |------ |------ |------ |------------------- |
+    LinkedListLinq | 100000 |  983.1298 us | 11.7686 us |   1.00 |      0.00 | 50.00 |  1.00 |  1.00 |          23,345.02 |
+          RawArrayLinq | 100000 | 642.9168 us |  8.4538 us |   0.65 |      0.01 | 25.00 |  0.62 |  0.62 |          11,792.55 |
+ LinkedListForEach | 100000 |   489.7788 us | 11.5741 us |   0.50 |      0.01 | 25.11 |  0.60 |  0.60 |          11,805.65 |
+     LinkedListFor | 100000 |  304.0103 us | 13.3861 us |   0.31 |      0.01 | 12.71 |  0.26 |  0.26 |           5,938.31 |
+     ArrayListForEach | 100000 | 271.9252 us | 20.1079 us |   0.28 |      0.02 | 13.00 |  0.25 |  0.25 |           6,056.56 |
+      ArrayListFor | 100000 |   99.9733 us |  0.6670 us |   0.10 |      0.00 |  3.36 |  0.07 |  0.07 |           1,575.59 |  
+   RawArrayForEach | 100000 |  54.3652 us |  1.1773 us |   0.05 |      0.00 |  3.36 |  0.07 |  0.07 |           1,575.59 |
+       RawArrayFor | 100000 |  65.2692 us |  0.5972 us |   0.07 |      0.00 |  3.36 |  0.08 |  0.08 |           1,577.01 |
+
 
 
 <br/>
@@ -232,9 +235,12 @@ or Linked List.  Whatever your language and environment of choice is, understand
     {
         var local = linkedList;
         int sum = 0;
-        foreach (var node in local)
+        checked
         {
-            sum += node;
+            foreach (var node in local)
+            {
+                sum += node;
+            }
         }
         return sum;
     }
@@ -245,10 +251,13 @@ or Linked List.  Whatever your language and environment of choice is, understand
         var local = linkedList;
         int sum = 0;
         var node = local.First;
-        for (int i = 0; i < local.Count; i++)
+        checked
         {
-            sum += node.Value;
-            node = node.Next;
+            for (int i = 0; i < local.Count; i++)
+            {
+                sum += node.Value;
+                node = node.Next;
+            }
         }
         return sum;
     }
@@ -258,9 +267,12 @@ or Linked List.  Whatever your language and environment of choice is, understand
     {
         var local = arrayList;
         int sum = 0;
-        for (int i = 0; i < local.Count; i++)
+        checked
         {
-            sum += local[i];
+            for (int i = 0; i < local.Count; i++)
+            {
+                sum += local[i];
+            }
         }
         return sum;
     }
@@ -270,9 +282,12 @@ or Linked List.  Whatever your language and environment of choice is, understand
     {
         var local = arrayList;
         int sum = 0;
-        foreach (var x in local)
+        checked
         {
-            sum += x;
+            foreach (var x in local)
+            {
+                sum += x;
+            }
         }
         return sum;
     }
@@ -289,9 +304,12 @@ or Linked List.  Whatever your language and environment of choice is, understand
     {
         var local = rawArray;
         int sum = 0;
-        foreach (var x in local)
+        checked
         {
-            sum += x;
+            foreach (var x in local)
+            {
+                sum += x;
+            }
         }
         return sum;
     }
@@ -301,11 +319,13 @@ or Linked List.  Whatever your language and environment of choice is, understand
     {
         var local = rawArray;
         int sum = 0;
-        for (int i = 0; i < local.Length;i++)
+        checked
         {
-            sum += local[i];
+            for (int i = 0; i < local.Length; i++)
+            {
+                sum += local[i];
+            }
         }
         return sum;
     }
-    
 ```
