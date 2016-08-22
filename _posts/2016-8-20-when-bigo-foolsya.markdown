@@ -30,8 +30,8 @@ Once you are familiar with how important contiguous memory access is, it should 
 a Linked List.  Environments with clever allocators and garage collectors may be able to keep Linked List nodes somewhat contiguous, some of the time, but they can't guarantee it.  Using a raw
 array usually involves quite a bit more complex code, especially if you want to be able to insert or add items, as you will have to deal with growing the array, shuffling elements around, and so on.
 Most language's have core libraries which include some sort of growable array data structure to help with this.  In C++ you have [vector](http://www.cplusplus.com/reference/vector/vector/), in C# you have
-[List (aliased as ResizeArray in F#)](https://msdn.microsoft.com/en-us/library/6sh2ey19(v=vs.110).aspx), and in Java there is [ArrayList](https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html). Usually 
-these data structures expose the same, or similar interface as the Linked List collection.  I will refer to such data structures as Array Lists from here on.
+[List&lt;T&gt; (aliased as ResizeArray in F#)](https://msdn.microsoft.com/en-us/library/6sh2ey19(v=vs.110).aspx), and in Java there is [ArrayList](https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html). Usually 
+these data structures expose the same, or similar interface as the Linked List collection.  **I will refer to such data structures as Array Lists from here on, but keep in mind all the C# examples are using the List&lt;T&gt; class, not the older ArrayList class.**
 
 So what if you need a data structure that you can insert items into, and iterate over quickly? Let us assume for this example, that we have a use case where we will insert into the front
 of a collection about 5 times more often that we iterate over it. Let us also assume that the Linked List and Array List in our environment have interfaces which are equally pleasant to work with for this task.
