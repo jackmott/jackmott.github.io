@@ -200,16 +200,16 @@ As some food for thought, here are 7 different ways to add up a list of numbers 
 Notice how bad the most popular method (Linq) is. Notice that the `foreach` abstraction works out well with raw Arrays, but not with Array List
 or Linked List.  Whatever your language and environment of choice is, understand these details so you can make smart default choices. 
 
-   Method | length |        Median |     StdDev | Scaled | Scaled-SD | Gen 0 | Gen 1 | Gen 2 | Bytes Allocated/Op |
------------------- |------- |-------------- |----------- |------- |---------- |------ |------ |------ |------------------- |
-    LinkedListLinq | 100000 | 1,038.8218 us | 11.3209 us |   1.00 |      0.00 | 59.00 |  1.00 |     - |          21,024.01 |
-    RawArrayLinq | 100000 |   645.1760 us |  9.4676 us |   0.62 |      0.01 | 29.27 |  0.68 |     - |          10,564.30 |
- LinkedListForEach | 100000 |   524.7345 us |  5.7885 us |   0.50 |      0.01 | 29.22 |  0.70 |     - |          10,537.33 |
-     LinkedListFor | 100000 |   313.8114 us |  7.6675 us |   0.30 |      0.01 | 15.27 |  0.24 |     - |           5,425.82 |
-     ArrayListForEach | 100000 | 270.1051 us | 11.3993 us | 0.27 | 0.01 | 10.25 | 0.25 | - | 5,382.90 |
-      ArrayListFor | 100000 |   137.9592 us |  1.5764 us |   0.13 |      0.00 |  7.71 |  0.15 |     - |           2,753.69 |  
-       RawArrayFor | 100000 |    56.2235 us |  0.9468 us |   0.05 |      0.00 |  3.91 |  0.09 |     - |           1,407.91 |
-    RawArrayForEach | 100000 |    46.3818 us |  0.5221 us |   0.04 |      0.00 |  2.00 |  0.04 |     - |             717.00 |
+  Method | length |        Median |      StdDev | Scaled | Scaled-SD | Gen 0 | Gen 1 | Gen 2 | Bytes Allocated/Op |
+------------------ |------- |-------------- |------------ |------- |---------- |------ |------ |------ |------------------- |
+    LinkedListLinq | 100000 | 1,020.2228 us | 175.0166 us |   1.00 |      0.00 | 58.00 |  1.00 |     - |          21,008.89 |
+      RawArrayLinq | 100000 |   648.8836 us |  14.4778 us |   0.63 |      0.06 | 29.21 |  0.57 |     - |          10,628.37 |
+ LinkedListForEach | 100000 |   570.7069 us |  30.0890 us |   0.56 |      0.06 | 22.60 |  0.37 |     - |           8,168.27 |
+     LinkedListFor | 100000 |   372.5064 us |  16.9530 us |   0.36 |      0.04 | 14.78 |  0.32 |     - |           5,395.63 |
+     ArrayListForEach | 100000 |   270.6204 us |  27.6803 us |   0.27 |      0.04 |  8.92 |  0.05 |     - |           3,162.80 |
+      ArrayListFor | 100000 |    99.9233 us |  11.7005 us |   0.10 |      0.02 |  7.54 |  0.17 |     - |           2,754.28 |      
+   RawArrayForEach | 100000 |    45.2560 us |   0.5464 us |   0.04 |      0.00 |  1.97 |  0.04 |     - |             719.81 |
+       RawArrayFor | 100000 |    45.4073 us |   4.4140 us |   0.05 |      0.01 |  1.97 |  0.04 |     - |             716.41 |
 
 
 <br/>
@@ -218,20 +218,16 @@ or Linked List.  Whatever your language and environment of choice is, understand
     [Benchmark(Baseline = true)]
     public int LinkedListLinq()
     {
-        return linkedList.Sum();
-    }
-
-    [Benchmark]
-    public int RawArrayLinq()
-    {
-        return rawArray.Sum();
+        var local = linkedList;
+        return local.Sum();
     }
 
     [Benchmark]
     public int LinkedListForEach()
     {
+        var local = linkedList;
         int sum = 0;
-        foreach (var node in linkedList)
+        foreach (var node in local)
         {
             sum += node;
         }
@@ -241,23 +237,13 @@ or Linked List.  Whatever your language and environment of choice is, understand
     [Benchmark]
     public int LinkedListFor()
     {
+        var local = linkedList;
         int sum = 0;
-        var node = linkedList.First;
-        for (int i = 0; i < linkedList.Count; i++)
+        var node = local.First;
+        for (int i = 0; i < local.Count; i++)
         {
             sum += node.Value;
             node = node.Next;
-        }
-        return sum;
-    }
-     
-    [Benchmark]
-    public int ArrayListForEach()
-    {
-        int sum = 0;
-        foreach (var x in arrayList)
-        {
-            sum += x;
         }
         return sum;
     }
@@ -265,10 +251,42 @@ or Linked List.  Whatever your language and environment of choice is, understand
     [Benchmark]
     public int ArrayListFor()
     {
+        var local = arrayList;
         int sum = 0;
-        for (int i = 0; i < arrayList.Count; i++)
+        for (int i = 0; i < local.Count; i++)
         {
-            sum += arrayList[i];
+            sum += local[i];
+        }
+        return sum;
+    }
+
+    [Benchmark]
+    public int ArrayListForEach()
+    {
+        var local = arrayList;
+        int sum = 0;
+        foreach (var x in local)
+        {
+            sum += x;
+        }
+        return sum;
+    }
+
+    [Benchmark]
+    public int RawArrayLinq()
+    {
+        var local = rawArray;
+        return local.Sum();
+    }
+
+    [Benchmark]
+    public int RawArrayForEach()
+    {
+        var local = rawArray;
+        int sum = 0;
+        foreach (var x in local)
+        {
+            sum += x;
         }
         return sum;
     }
@@ -276,26 +294,13 @@ or Linked List.  Whatever your language and environment of choice is, understand
     [Benchmark]
     public int RawArrayFor()
     {
-
+        var local = rawArray;
         int sum = 0;
-        for (int i = 0; i < rawArray.Length;i++)
+        for (int i = 0; i < local.Length;i++)
         {
-            sum += rawArray[i];
+            sum += local[i];
         }
         return sum;
     }
-
-    [Benchmark]
-    public int RawArrayForEach()
-    {
-        
-        int sum = 0;
-        foreach (var x in rawArray)
-        {
-            sum += x;
-        }
-        return sum;
-    }
-
     
 ```

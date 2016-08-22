@@ -233,6 +233,7 @@ but sometimes you can't.  If you get desperate, write the function in C# using a
 * For lops that go from 0 to anything *less* than the array length, will not get the bounds check elided.
 * For loops that go backwards, will not get array bounds checking elided.
 * With for loops over arrays in F# that have a stride length of something other than 1, the compiler generates a loop that uses an Enumerator, which is much slower and generates garbage. Use a while loop, or tail recursion instead.
+* For loops over arrays that are class members will miss the array bounds elision. Make a function local copy of the reference first.
 * The `for x in array` syntax in F# works out fine. There may be other performance considerations but a normal for loop is generated and bounds checking is elided.
 
 *These things are all true as of 64bit RyuJIT .NET 4.6.2 and F# 4.4.0, some of them are being actively worked on and could improve soon.*
