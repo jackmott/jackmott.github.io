@@ -27,7 +27,7 @@ before you may want a sorted array and a binary search algorithm. Where you want
 ### Linked List vs Array List
 
 Once you are familiar with how important contiguous memory access is, it should be no surprise that if you want to iterate over a collection quickly, that an array will be faster than
-a Linked List.  Environments with clever allocators and garage collectors may be able to keep Linked List nodes somewhat contiguous, some of the time, but they can't gaurantee it.  Using a raw
+a Linked List.  Environments with clever allocators and garage collectors may be able to keep Linked List nodes somewhat contiguous, some of the time, but they can't guarantee it.  Using a raw
 array usually involves quite a bit more complex code, especially if you want to be able to insert or add items, as you will have to deal with growing the array, shuffling elements around, and so on.
 Most language's have core libraries which include some sort of growable array data structure to help with this.  In C++ you have [vector](http://www.cplusplus.com/reference/vector/vector/), in C# you have
 [List (aliased as ResizeArray in F#)](https://msdn.microsoft.com/en-us/library/6sh2ey19(v=vs.110).aspx), and in Java there is [ArrayList](https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html). Usually 
