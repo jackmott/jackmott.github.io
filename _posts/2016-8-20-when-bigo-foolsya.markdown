@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "When Big O Fools Ya"
+subtitle: "An Array Love Story"
 date:   2016-08-20 14:17:27 -0500
 categories: programming
 ---
@@ -140,7 +141,8 @@ Let's try it:
 
 <br/>
 Here we get the result that will be counterintuitive to many. No matter how large `n` gets, the Array List still performs better overall. In order for performance to get worse, the *ratio*
-of inserts to iterations has to change, not just the length of the collection. Note that isn't an actual failure of Big O analysis, it is merely a common human failure in our application of it. 
+of inserts to iterations has to change, not just the length of the collection. Note that isn't an actual failure of Big O analysis, it is merely a common human failure in our application of it.  If you
+actually "did the math", Big O would tell you that the two data structures here will grow at the same speed when there is a constant ratio of inserts to iterations. 
 
 Where the break even point occurs will depend on many factors, though a good rule of thumb suggested by 
 [Chandler Carruth](https://www.youtube.com/watch?v=fHNmRkzxHWs) at Google is that Array Lists will outperform Linked Lists until you are inserting about an order of magnitude more often than you are iterating. 
@@ -204,19 +206,21 @@ By taking time to understand your environment, you will be aware of cases where 
 
 
 As some food for thought, here are 7 different ways to add up a list of numbers in C#, with their run times and memory costs. Notice how *much* better performing the fastest option is.
-Checked arithmetic is used in all cases to keep the comparison with Linq fair. Notice how bad the most popular method (Linq) is. Notice that the `foreach` abstraction works out well with 
-raw Arrays, but not with Array List or Linked List.  Whatever your language and environment of choice is, understand these details so you can make smart default choices. 
+Checked arithmetic is used in all cases to keep the comparison with Linq fair, as it's Sum method uses checked arithmetic. Notice how expensive the most popular method (Linq) is. Notice 
+that the `foreach` abstraction works out well with raw Arrays, but not with Array List or Linked List.  Whatever your language and environment of choice is, understand these details so you can 
+make smart default choices. 
 
-  Method | length  |      Median |     StdDev | Scaled | Scaled-SD | Gen 0 | Gen 1 | Gen 2 | Bytes Allocated/Op |
+ 
+  Method | length |      Median |     StdDev | Scaled | Scaled-SD | Gen 0 | Gen 1 | Gen 2 | Bytes Allocated/Op |
 ------------------ |------- |------------ |----------- |------- |---------- |------ |------ |------ |------------------- |
-    LinkedListLinq | 100000 |  983.1298 us | 11.7686 us |   1.00 |      0.00 | 50.00 |  1.00 |  1.00 |          23,345.02 |
-          RawArrayLinq | 100000 | 642.9168 us |  8.4538 us |   0.65 |      0.01 | 25.00 |  0.62 |  0.62 |          11,792.55 |
- LinkedListForEach | 100000 |   489.7788 us | 11.5741 us |   0.50 |      0.01 | 25.11 |  0.60 |  0.60 |          11,805.65 |
-     LinkedListFor | 100000 |  304.0103 us | 13.3861 us |   0.31 |      0.01 | 12.71 |  0.26 |  0.26 |           5,938.31 |
-     ArrayListForEach | 100000 | 271.9252 us | 20.1079 us |   0.28 |      0.02 | 13.00 |  0.25 |  0.25 |           6,056.56 |
-      ArrayListFor | 100000 |   99.9733 us |  0.6670 us |   0.10 |      0.00 |  3.36 |  0.07 |  0.07 |           1,575.59 |  
-   RawArrayForEach | 100000 |  54.3652 us |  1.1773 us |   0.05 |      0.00 |  3.36 |  0.07 |  0.07 |           1,575.59 |
-       RawArrayFor | 100000 |  65.2692 us |  0.5972 us |   0.07 |      0.00 |  3.36 |  0.08 |  0.08 |           1,577.01 |
+    LinkedListLinq | 100000 | 990.7718 us | 24.4306 us |   1.00 |      0.00 | 44.00 |  1.00 |  1.00 |          23,192.49 |
+    RawArrayLinq | 100000 | 643.8204 us | 10.2112 us |   0.64 |      0.02 | 22.54 |  0.49 |  0.49 |          11,856.39 |
+ LinkedListForEach | 100000 | 489.7294 us | 10.2803 us |   0.49 |      0.02 | 22.81 |  0.42 |  0.42 |          11,909.99 |
+     LinkedListFor | 100000 | 299.9746 us | 11.0535 us |   0.30 |      0.01 | 11.43 |  0.27 |  0.27 |           6,033.70 |    
+  ArrayListForEach | 100000 | 270.3873 us |  7.7696 us |   0.27 |      0.01 | 11.45 |  0.27 |  0.27 |           6,035.88 |
+    ArrayListFor | 100000 |  97.0850 us |  3.0664 us |   0.10 |      0.00 |  3.00 |  0.06 |  0.06 |           1,574.32 |  
+   RawArrayForEach | 100000 | 53.0535 us |  1.0476 us |   0.05 |      0.00 |  3.00 |  0.06 |  0.06 |           1,574.84 |
+       RawArrayFor | 100000 | 53.1745 us |  0.8180 us |   0.05 |      0.00 |  2.99 |  0.07 |  0.07 |           1,577.77 |
 
 
 
@@ -251,37 +255,38 @@ raw Arrays, but not with Array List or Linked List.  Whatever your language and 
         var local = linkedList;
         int sum = 0;
         var node = local.First;
-        checked
+        for (int i = 0; i < local.Count; i++)
         {
-            for (int i = 0; i < local.Count; i++)
+            checked
             {
                 sum += node.Value;
                 node = node.Next;
             }
         }
+
         return sum;
     }
 
     [Benchmark]
     public int ArrayListFor()
     {
-        //This is a List<T>
         var local = arrayList;
         int sum = 0;
-        checked
+
+        for (int i = 0; i < local.Count; i++)
         {
-            for (int i = 0; i < local.Count; i++)
+            checked
             {
                 sum += local[i];
             }
         }
+
         return sum;
     }
 
     [Benchmark]
     public int ArrayListForEach()
     {
-        //This is a List<T>
         var local = arrayList;
         int sum = 0;
         checked
@@ -321,13 +326,15 @@ raw Arrays, but not with Array List or Linked List.  Whatever your language and 
     {
         var local = rawArray;
         int sum = 0;
-        checked
+
+        for (int i = 0; i < local.Length; i++)
         {
-            for (int i = 0; i < local.Length; i++)
+            checked
             {
                 sum += local[i];
             }
         }
+
         return sum;
     }
 ```
