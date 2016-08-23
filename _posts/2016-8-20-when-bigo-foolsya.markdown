@@ -127,18 +127,148 @@ Type=Bench  Mode=Throughput
 The Array List wins by a nice margin. But this is a small list, Big O only tells us about performance as `n` grows large, so we should see this trend eventually reverse as `n` grows larger. 
 Let's try it:
 
- Method |   length | inserts |         Median |        StdDev | Scaled | 
----------- |--------- |-------- |--------------- |-------------- |------- |
- ArrayTest |      100 |       5 |     38.9983 us |     0.9040 us |   1.00 |  
-  ListTest |      100 |       5 |     51.7538 us |     1.3161 us |   1.30 |  
- ArrayTest |     1000 |       5 |     42.1585 us |     1.0770 us |   1.00 |  
-  ListTest |     1000 |       5 |     49.5561 us |     1.6787 us |   1.17 |  
- ArrayTest |   100000 |       5 |    208.9662 us |     3.3698 us |   1.00 |  
-  ListTest |   100000 |       5 |    312.2153 us |    10.3753 us |   1.48 |  
- ArrayTest |  1000000 |       5 |  2,179.2469 us |    36.8483 us |   1.00 |  
-  ListTest |  1000000 |       5 |  4,913.3430 us |   133.5379 us |   2.27 |  
- ArrayTest | 10000000 |       5 | 36,103.8456 us | 1,251.5668 us |   1.00 |  
-  ListTest | 10000000 |       5 | 49,395.0839 us | 1,355.5119 us |   1.37 |  
+<div style="width:950px;">
+<div style="width:500px;float:left;">
+<table >
+  <thead>
+    <tr>      
+      <th>Method</th>
+      <th>length</th>
+      <th>inserts</th>
+      <th>Median</th>
+      <th>StdDev</th>
+      <th>Scaled</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ArrayTest</td>
+      <td>100</td>
+      <td>5</td>
+      <td>38.9983 us</td>
+      <td>0.9040 us</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <td>ListTest</td>
+      <td>100</td>
+      <td>5</td>
+      <td>51.7538 us</td>
+      <td>1.3161 us</td>
+      <td>1.30</td>
+    </tr>
+    <tr>
+      <td>ArrayTest</td>
+      <td>1000</td>
+      <td>5</td>
+      <td>42.1585 us</td>
+      <td>1.0770 us</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <td>ListTest</td>
+      <td>1000</td>
+      <td>5</td>
+      <td>49.5561 us</td>
+      <td>1.6787 us</td>
+      <td>1.17</td>
+    </tr>
+    <tr>
+      <td>ArrayTest</td>
+      <td>100000</td>
+      <td>5</td>
+      <td>208.9662 us</td>
+      <td>3.3698 us</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <td>ListTest</td>
+      <td>100000</td>
+      <td>5</td>
+      <td>312.2153 us</td>
+      <td>10.3753 us</td>
+      <td>1.48</td>
+    </tr>
+    <tr>
+      <td>ArrayTest</td>
+      <td>1000000</td>
+      <td>5</td>
+      <td>2,179.2469 us</td>
+      <td>36.8483 us</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <td>ListTest</td>
+      <td>1000000</td>
+      <td>5</td>
+      <td>4,913.3430 us</td>
+      <td>133.5379 us</td>
+      <td>2.27</td>
+    </tr>
+    <tr>
+      <td>ArrayTest</td>
+      <td>10000000</td>
+      <td>5</td>
+      <td>36,103.8456 us</td>
+      <td>1,251.5668 us</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <td>ListTest</td>
+      <td>10000000</td>
+      <td>5</td>
+      <td>49,395.0839 us</td>
+      <td>1,355.5119 us</td>
+      <td>1.37</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div style="width:450px;float:right">
+<br/><br/>
+<table class="highchart" 
+  data-graph-container=".. .. .highchart-container" 
+  data-graph-type="line" graph-color="#000"  style="display:none" >
+  <thead>
+    <tr>      
+      <th>Length</th>      
+      <th>ArrayList</th>
+      <th>LinkedList</th>      
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>100</td>                  
+      <td>38.9983</td>
+      <td>51.7538</td>      
+    </tr>    
+    <tr>      
+      <td>1000</td>      
+      <td>42.1585</td>
+      <td>49.5561</td>
+    </tr>    
+    <tr>      
+      <td>100000</td>      
+      <td>208.9662</td>
+      <td>312.2153</td>
+    </tr>    
+    <tr>      
+      <td>1000000</td>      
+      <td>2179.2469</td>
+      <td>4913.3430</td>      
+    </tr>    
+    <tr>    
+      <td>10000000</td>    
+      <td>36103.8456</td>
+      <td>49395.0839</td>
+    </tr>
+    
+  </tbody>
+</table>
+<div class="highchart-container" style="background-color:#000;"></div>
+</div>
+<div style="clear:both;"></div>
+</div>
 
 <br/>
 Here we get the result that will be counterintuitive to many. No matter how large `n` gets, the Array List still performs better overall. In order for performance to get worse, the *ratio*
@@ -341,3 +471,14 @@ make smart default choices.
         return sum;
     }
 ```
+
+
+<script src="https://code.jquery.com/jquery-2.2.4.min.js" type="text/javascript"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="/js/highchartTable-min.js" type="text/javascript"></script>
+
+<script>
+    $(document).ready(function() {
+        $('table.highchart').highchartTable();
+    });
+</script>
