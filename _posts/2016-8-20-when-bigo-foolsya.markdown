@@ -228,7 +228,9 @@ Let's try it:
 <br/><br/>
 <table class="highchart" 
   data-graph-container=".. .. .highchart-container" 
-  data-graph-type="line" graph-color="#000"  style="display:none" >
+  data-graph-type="line" graph-color="#000" 
+  data-graph-xaxis-title-text="array size"
+  data-graph-yaxis1-title-text="log runtime us" style="display:none" >
   <thead>
     <tr>      
       <th>Length</th>      
