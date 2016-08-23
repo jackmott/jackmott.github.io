@@ -117,27 +117,26 @@ Type=Bench  Mode=Throughput
 ### Results:
 
 
- Method |   length | inserts |         Median |        StdDev | Scaled | 
----------- |--------- |-------- |--------------- |-------------- |------- |
- ArrayTest |      100 |       5 |     38.9983 us |     0.9040 us |   1.00 | 
-  ListTest |      100 |       5 |     51.7538 us |     1.3161 us |   1.30 | 
+ Method |   length | inserts |         Median |    
+---------- |--------- |-------- |--------------- |
+ ArrayTest |      100 |       5 |     38.9983 us | 
+  ListTest |      100 |       5 |     51.7538 us | 
  
 <br/>
 
 The Array List wins by a nice margin. But this is a small list, Big O only tells us about performance as `n` grows large, so we should see this trend eventually reverse as `n` grows larger. 
 Let's try it:
 
-<div style="width:950px;">
-<div style="width:500px;float:left;">
+<div style="width:750px;">
+<div style="width:350px;float:left;">
 <table >
   <thead>
     <tr>      
       <th>Method</th>
-      <th>length</th>
-      <th>inserts</th>
+      <th>Length</th>
+      <th>Inserts</th>
       <th>Median</th>
-      <th>StdDev</th>
-      <th>Scaled</th>
+      
     </tr>
   </thead>
   <tbody>
@@ -145,87 +144,67 @@ Let's try it:
       <td>ArrayTest</td>
       <td>100</td>
       <td>5</td>
-      <td>38.9983 us</td>
-      <td>0.9040 us</td>
-      <td>1.00</td>
+      <td>38.9983 us</td>      
     </tr>
     <tr>
       <td>ListTest</td>
       <td>100</td>
       <td>5</td>
-      <td>51.7538 us</td>
-      <td>1.3161 us</td>
-      <td>1.30</td>
+      <td>51.7538 us</td>      
     </tr>
     <tr>
       <td>ArrayTest</td>
       <td>1000</td>
       <td>5</td>
-      <td>42.1585 us</td>
-      <td>1.0770 us</td>
-      <td>1.00</td>
+      <td>42.1585 us</td>      
     </tr>
     <tr>
       <td>ListTest</td>
       <td>1000</td>
       <td>5</td>
-      <td>49.5561 us</td>
-      <td>1.6787 us</td>
-      <td>1.17</td>
+      <td>49.5561 us</td>      
     </tr>
     <tr>
       <td>ArrayTest</td>
       <td>100000</td>
       <td>5</td>
-      <td>208.9662 us</td>
-      <td>3.3698 us</td>
-      <td>1.00</td>
+      <td>208.9662 us</td>      
     </tr>
     <tr>
       <td>ListTest</td>
       <td>100000</td>
       <td>5</td>
-      <td>312.2153 us</td>
-      <td>10.3753 us</td>
-      <td>1.48</td>
+      <td>312.2153 us</td>      
     </tr>
     <tr>
       <td>ArrayTest</td>
       <td>1000000</td>
       <td>5</td>
-      <td>2,179.2469 us</td>
-      <td>36.8483 us</td>
-      <td>1.00</td>
+      <td>2,179.2469 us</td>      
     </tr>
     <tr>
       <td>ListTest</td>
       <td>1000000</td>
       <td>5</td>
-      <td>4,913.3430 us</td>
-      <td>133.5379 us</td>
-      <td>2.27</td>
+      <td>4,913.3430 us</td>      
     </tr>
     <tr>
       <td>ArrayTest</td>
       <td>10000000</td>
       <td>5</td>
-      <td>36,103.8456 us</td>
-      <td>1,251.5668 us</td>
-      <td>1.00</td>
+      <td>36,103.8456 us</td>      
     </tr>
     <tr>
       <td>ListTest</td>
       <td>10000000</td>
       <td>5</td>
-      <td>49,395.0839 us</td>
-      <td>1,355.5119 us</td>
-      <td>1.37</td>
+      <td>49,395.0839 us</td>      
     </tr>
   </tbody>
 </table>
 </div>
-<div style="width:450px;float:right">
-<br/><br/>
+<div style="width:400px;float:right">
+
 <table class="highchart" 
   data-graph-container=".. .. .highchart-container" 
   data-graph-type="line" graph-color="#000" 
@@ -281,10 +260,10 @@ Where the break even point occurs will depend on many factors, though a good rul
 [Chandler Carruth](https://www.youtube.com/watch?v=fHNmRkzxHWs) at Google is that Array Lists will outperform Linked Lists until you are inserting about an order of magnitude more often than you are iterating. 
 This rule of thumb works well in this particular case, as 10:1 is where we see Array List start to lose:
 
-  Method |   length | inserts |             Median |            StdDev | Scaled | 
---------- |--------- |-------- |------------------- |------------------ |------- |
- ArrayTest |   100000 |      10 |    328,147.7954 ns |     5,721.7161 ns |   1.00 |  
- ListTest|   100000 |      10 |    324,349.0560 ns |     5,030.1883 ns |   0.86 |  
+  Method |   Length | Inserts |             Median |      
+--------- |--------- |-------- |------------------- |
+ ArrayTest |   100000 |      10 |    328,147.7954 ns |   
+ ListTest|   100000 |      10 |    324,349.0560 ns |    
 
 <br/>
 
@@ -300,14 +279,14 @@ but how does this affect the relative performance?
 It narrows it quite a bit, depending on the size of the objects, and the details of your hardware and software environment. Refactoring the example above to use Lists of small objects (12 bytes), the break even
 point drops to about 4 inserts per iteration:
 
-  Method | length | inserts |        Median |     StdDev | Scaled | 
----------------- |------- |-------- |-------------- |----------- |------- |
- ArrayTestObject | 100000 |       0 |   674.1864 us | 16.5796 us |   1.00 |  
-  ListTestObject | 100000 |       0 | 1,140.9044 us | 12.5662 us |   1.67 |     
- ArrayTestObject | 100000 |       2 |   959.0482 us | 14.5091 us |   1.00 |  
-  ListTestObject | 100000 |       2 | 1,121.5423 us | 23.0159 us |   1.17 |   
- ArrayTestObject | 100000 |       4 | 1,230.6550 us | 20.1380 us |   1.00 |  
-  ListTestObject | 100000 |       4 | 1,142.6658 us | 23.2076 us |   0.92 |  
+  Method | Length | Inserts |        Median | 
+---------------- |------- |-------- |-------------- |
+ ArrayTestObject | 100000 |       0 |   674.1864 us |   
+  ListTestObject | 100000 |       0 | 1,140.9044 us |      
+ ArrayTestObject | 100000 |       2 |   959.0482 us |   
+  ListTestObject | 100000 |       2 | 1,121.5423 us |    
+ ArrayTestObject | 100000 |       4 | 1,230.6550 us |   
+  ListTestObject | 100000 |       4 | 1,142.6658 us |   
  
  <br/>
 
@@ -319,12 +298,12 @@ of Array List might improve as well as the heap gets more fragmented, but you wi
 As an aside, if your objects are sufficiently small (16 to 32 bytes or less, depending on various factors) you should consider  making them value types (`struct` in .NET) instead of objects. 
 Not only will you benefit greatly from contiguous memory access, but you will potentially reduce garbage collection overhead as well, depending on your usage of them:
 
-  Method | length | inserts |        Median |     StdDev |
------------------ |------- |-------- |-------------- |----------- |
-  ArrayTestObject | 100000 |      10 | 2,094.8273 us | 15.6230 us |
- ListTestObject | 100000 |      10 | 1,154.3014 us | 16.2864 us |
-  ArrayTestStruct | 100000 |      10 |   792.0004 us |  3.5715 us |
- ListTestStruct | 100000 |      10 | 1,206.0713 us | 18.1695 us |
+  Method | Length | Inserts |        Median |  
+----------------- |------- |-------- |-------------- |
+  ArrayTestObject | 100000 |      10 | 2,094.8273 us | 
+ ListTestObject | 100000 |      10 | 1,154.3014 us | 
+  ArrayTestStruct | 100000 |      10 |   792.0004 us |
+ ListTestStruct | 100000 |      10 | 1,206.0713 us | 
 
 <br/>
 
@@ -344,16 +323,16 @@ that the `foreach` abstraction works out well with raw Arrays, but not with Arra
 make smart default choices. 
 
  
-  Method | length |      Median |     StdDev | Scaled | Scaled-SD | Gen 0 | Gen 1 | Gen 2 | Bytes Allocated/Op |
------------------- |------- |------------ |----------- |------- |---------- |------ |------ |------ |------------------- |
-    LinkedListLinq | 100000 | 990.7718 us | 24.4306 us |   1.00 |      0.00 | 44.00 |  1.00 |  1.00 |          23,192.49 |
-    RawArrayLinq | 100000 | 643.8204 us | 10.2112 us |   0.64 |      0.02 | 22.54 |  0.49 |  0.49 |          11,856.39 |
- LinkedListForEach | 100000 | 489.7294 us | 10.2803 us |   0.49 |      0.02 | 22.81 |  0.42 |  0.42 |          11,909.99 |
-     LinkedListFor | 100000 | 299.9746 us | 11.0535 us |   0.30 |      0.01 | 11.43 |  0.27 |  0.27 |           6,033.70 |    
-  ArrayListForEach | 100000 | 270.3873 us |  7.7696 us |   0.27 |      0.01 | 11.45 |  0.27 |  0.27 |           6,035.88 |
-    ArrayListFor | 100000 |  97.0850 us |  3.0664 us |   0.10 |      0.00 |  3.00 |  0.06 |  0.06 |           1,574.32 |  
-   RawArrayForEach | 100000 | 53.0535 us |  1.0476 us |   0.05 |      0.00 |  3.00 |  0.06 |  0.06 |           1,574.84 |
-       RawArrayFor | 100000 | 53.1745 us |  0.8180 us |   0.05 |      0.00 |  2.99 |  0.07 |  0.07 |           1,577.77 |
+  Method | Length |      Median |   Bytes Allocated/Op |
+------------------ |------- |------------ |----------- |------------------- |
+    LinkedListLinq | 100000 | 990.7718 us |  23,192.49 |
+    RawArrayLinq | 100000 | 643.8204 us |           11,856.39 |
+ LinkedListForEach | 100000 | 489.7294 us |          11,909.99 |
+     LinkedListFor | 100000 | 299.9746 us |           6,033.70 |    
+  ArrayListForEach | 100000 | 270.3873 us |             6,035.88 |
+    ArrayListFor | 100000 |  97.0850 us |            1,574.32 |  
+   RawArrayForEach | 100000 | 53.0535 us |            1,574.84 |
+       RawArrayFor | 100000 | 53.1745 us |        1,577.77 |
 
 
 
