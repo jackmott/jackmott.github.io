@@ -73,9 +73,10 @@ Type=Bench  Mode=Throughput
 ``` c# 
     [Benchmark(Baseline=true)]
     public int ArrayTest()
-    {
-        var local = arrayList;
-        var localInserts = inserts;
+    {        
+        //In C#, List<T> is an array backed list.
+        List<int> local = arrayList;
+        int localInserts = inserts;
         int sum = 0;
         for (int i = 0; i < localInserts; i++)
         {
@@ -93,8 +94,8 @@ Type=Bench  Mode=Throughput
     [Benchmark]
     public int ListTest()
     {
-        var local = linkedList;
-        var localInserts = inserts;
+        LinkedList<int> local = linkedList;
+        int localInserts = inserts;
         int sum = 0;
         for (int i = 0; i < localInserts; i++)
         {
@@ -116,10 +117,10 @@ Type=Bench  Mode=Throughput
 ### Results:
 
 
- Method |   length | inserts |         Median |        StdDev | Scaled | Scaled-SD |    Gen 0 |    Gen 1 | Gen 2 | Bytes Allocated/Op |
----------- |--------- |-------- |--------------- |-------------- |------- |---------- |--------- |--------- |------ |------------------- |
- ArrayTest |      100 |       5 |     38.9983 us |     0.9040 us |   1.00 |      0.00 |        - |        - |     - |              25.10 |
-  ListTest |      100 |       5 |     51.7538 us |     1.3161 us |   1.30 |      0.04 |        - |        - |     - |              95.66 |
+ Method |   length | inserts |         Median |        StdDev | Scaled | 
+---------- |--------- |-------- |--------------- |-------------- |------- |
+ ArrayTest |      100 |       5 |     38.9983 us |     0.9040 us |   1.00 | 
+  ListTest |      100 |       5 |     51.7538 us |     1.3161 us |   1.30 | 
  
 <br/>
 
@@ -270,7 +271,8 @@ make smart default choices.
     [Benchmark]
     public int ArrayListFor()
     {
-        var local = arrayList;
+        //In C#, List<T> is an array backed list
+        List<int> local = arrayList;
         int sum = 0;
 
         for (int i = 0; i < local.Count; i++)
@@ -286,8 +288,9 @@ make smart default choices.
 
     [Benchmark]
     public int ArrayListForEach()
-    {
-        var local = arrayList;
+    {        
+        //In C#, List<T> is an array backed list
+        List<int> local = arrayList;
         int sum = 0;
         checked
         {
@@ -302,14 +305,14 @@ make smart default choices.
     [Benchmark]
     public int RawArrayLinq()
     {
-        var local = rawArray;
+        int[] local = rawArray;
         return local.Sum();
     }
 
     [Benchmark]
     public int RawArrayForEach()
     {
-        var local = rawArray;
+        int[] local = rawArray;
         int sum = 0;
         checked
         {
@@ -324,7 +327,7 @@ make smart default choices.
     [Benchmark]
     public int RawArrayFor()
     {
-        var local = rawArray;
+        int[] local = rawArray;
         int sum = 0;
 
         for (int i = 0; i < local.Length; i++)
