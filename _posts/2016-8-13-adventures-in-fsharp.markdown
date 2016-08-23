@@ -92,6 +92,13 @@ Microsoft guys considered that a net win, so they took it. The improvement here 
 would be with large array types (Like a 16 byte struct) where most elements are likely to get filtered.  You might want to roll your own filter if you are doing
 that.  This same optimization was applied to the similar Array.choose function.
 
+#### UPDATE:
+
+[Asik](https://github.com/asik) and I have collaborated and got a [new filter merged](https://github.com/jackmott/visualfsharp/blob/497f11a9bc7367af79264090096d3bf6da2b6903/src/fsharp/FSharp.Core/array.fs#L487)
+ that keeps the speed of the above solution, while reducing allocations by ~30% on average. We did this by implementing a growing array by hand, taking advantage of extra knowledge we have, like
+ that the upper bound for it's size is array.Length, and some other tricks.  Another [interesting solution](https://gist.github.com/manofstick/229384a1bd0bdb26caf9a780b952d9b8) is being proposed by
+ [Paul Westcott](https://gist.github.com/manofstick) which uses a bit array. This may reduce allocations yet again while maintaining similar rerformance, pretty cool.  
+
 As an aside, if your predicate is a pure function, and a fast function, you can [apply the predicate twice](https://github.com/jackmott/SIMDArray/blob/master/src/SIMDArray/SIMDArray.fs#L1076)
 to avoid any extra allocations at all. This is *very* fast for sufficiently simple predicates, like > or < comparisons.
 
@@ -352,7 +359,7 @@ NumThreads times, instead of array.Length times, so causes no terrible performan
 
 ### Recursion is slower ... sometimes
 
-Sometimes a recursive implementation will be a substantive speed hit.  While the F# compiler is very good at tail recusion optimization, turning most recursive functions into nice loops, there can still be a small to medium performance penalty in some cases.  For example, Array.compareWith got about 20% faster when converted from this recursive implementation to while loops:
+Sometimes a recursive implementation will be a substantive speed hit.  While the F# compiler is very good at tail recursion optimization, turning most recursive functions into nice loops, there can still be a small to medium performance penalty in some cases.  For example, Array.compareWith got about 20% faster when converted from this recursive implementation to while loops:
 
 ``` ocaml
  let inline compareWith (comparer:'T -> 'T -> int) (array1: 'T[]) (array2: 'T[]) = 
