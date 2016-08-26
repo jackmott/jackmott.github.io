@@ -62,6 +62,13 @@ double sum = 0.0;
 	}
 
 ```
+Note that to get floating point addition vectorized automatically you have to specify to the compiler that you want 'fast floating point', as floating point
+addition is not associative. Results will be different when vectorized, though they will actually be more accurate, not less. (in this case, maybe all?)
+
+### C# Linq - 260 milliseconds
+``` c#
+    var sum = values.Select(x => x * x).Sum();
+```
 
 ### C# - 34 milliseconds
 
@@ -69,17 +76,21 @@ double sum = 0.0;
     double sum = 0.0;
     foreach (var v in values)
     {
-        double square = v * v;
-        sum += square;
+        checked {
+            double square = v * v;
+            sum += square;
+        }
     }
 ```
 
-Stepping up a level to C#, we have a fairly idiomatic solution.  Some C# programmers today might use Linq, or an Enumerator by default, which would be 
-slower and put pressure on the garbage collector. This foreach loop isn't too unusual however, the C# compiler compiles it down to a normal for loop when you
-use it with an array, and saves us some typing. The  runtime here 
-is twice as slow as the C code, and that is entirely due to not being automatically vectorized.  With the .NET JIT, it is not considered a worthwhile 
-tradeoff to do this particular optimization. Additionally, with C# you have to take some care with array access in loops, or [bounds checking overhead can be introduced](http://www.codeproject.com/Articles/844781/Digging-Into-NET-Loop-Performance-Bounds-checking). 
-In this case the JIT gets it right, and there is no bounds checking overhead.
+Stepping up a level to C#, we have a couple of idiomatic solutions.  Many C# programmers today might use Linq which as you can see is much slower. It also creates a 
+lot of garbage putting more pressure on the garbage collector. The foreach loop is also commonly used, and while it makes use of an enumerator which is slower and 
+produces garbage when used on collections, with an array the C# compiler optimizes it down to a normal for loop. This is nice as it saves you some typing without 
+runtime penalty. The  runtime here is still twice as slow as the C code, but that is entirely due to not being automatically vectorized.  With the .NET JIT, 
+it is not considered a worthwhile tradeoff to do this particular optimization. With C# you have to take some care with array access in loops, 
+or [bounds checking overhead can be introduced](http://www.codeproject.com/Articles/844781/Digging-Into-NET-Loop-Performance-Bounds-checking). In this case the 
+JIT gets it right, and there is no bounds checking overhead. Checked arithmetic is used in the loop body for parity with Linq, which also uses checked
+arithmetic on sum, though this has almost immeasurable impact on runtime.
 
 ### C# SIMD Explicit - 17 milliseconds
 ``` c#
@@ -140,6 +151,23 @@ with a nice performance improvement as a result.
 Now to get serious. First we use fold, so that we can combine the summing and squaring into a single pass. Then we use the
 [SIMDArray extensions](https://github.com/jackmott/SIMDArray) that I have been working on which let you take advantage
 of SIMD instructions with more obvious F# style.  Performance here is great, nearly as fast as C, but it took a lot of work to get here.
+At the moment there is no way to combine the lazy stream optimization with the SIMD ones. If you want to filter->map->reduce you will
+still be doing a lot of extra work.  This should be possible in principle though. Please submit a PR!
+
+
+### Rust - 34ms
+
+``` rust
+   let sum = vector.iter().
+                map(|x| x*x).        
+                sum()  
+```
+
+A late addition to this article, Rust achieves impressive numbers with the most obvious approach. This is super cool. I feel that this behavior should be the goal for any language offering these kinds of higher order functions 
+as part of the language or core library. If I could tell the rust compiler to pass along the LLVM argument -ffast-math, LLVM would auto vectorize this and should 
+drop time down to ~17ms time of C, maybe even better if LLVM does a better job than MSVC++.    
+
+### Conclusion
 
 I'm not picking on F#, every high level language seems to have similar issues where the obvious, encouraged, pleasant coding style leads to performance pitfalls. 
 In Java, for instance, everything is objects, and objects all allocate on the heap (unless the JIT does some work at runtime to determine it doesn't 
@@ -151,8 +179,9 @@ languages are supposed to let you type less, and get things working faster.
 What I would like to see is more of an attitude change among high level language designers and their communities.  None of the issues above need to exist.
 Java could (and will, soon) provide value types (as C# does) to make it less painful to avoid GC pressure if you use lots of small, short lived constructs.
 F# could provide Streams as part of the core library (as Java does).  .NET could auto vectorize code in the JIT (as Java does, to a degree) and/or provide more 
-complete coverage of SIMD instructions in the Vector library.  We, the community, can help by providing libraries and submitting PRs to make the obvious 
-code faster.  Time and energy will be saved, batteries will last longer, users will be happier.
+complete coverage of SIMD instructions in the Vector library.  We, the community, can help by providing libraries and [submitting PRs](https://jackmott.github.io/programming/2016/08/13/adventures-in-fsharp.html)
+ to make the obvious code faster.  Time and energy will be saved, batteries will last longer, users will be happier.
+
 
 ### Benchmark Details <a name="benchmark"></a>
 
