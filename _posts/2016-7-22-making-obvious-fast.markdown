@@ -207,3 +207,6 @@ Jit=RyuJit  GarbageCollection=Concurrent Workstation
 
 ```
 
+### Rust Details
+v1.11, --release -O3
+
