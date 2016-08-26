@@ -158,14 +158,30 @@ still be doing a lot of extra work.  This should be possible in principle though
 ### Rust - 34ms
 
 ``` rust
-   let sum = vector.iter().
+    let sum = vector.iter().
                 map(|x| x*x).        
                 sum()  
 ```
 
 A late addition to this article, Rust achieves impressive numbers with the most obvious approach. This is super cool. I feel that this behavior should be the goal for any language offering these kinds of higher order functions 
-as part of the language or core library. If I could tell the rust compiler to pass along the LLVM argument -ffast-math, LLVM would auto vectorize this and should 
-drop time down to ~17ms time of C, maybe even better if LLVM does a better job than MSVC++.    
+as part of the language or core library. It is possible to use rust intrinsics to get the same speed as the vectorized C code here, but to use those you have to
+write out the loop explicitly:
+
+### Rust SIMD - 18ms
+``` rust
+    let mut result = 0.0;
+    unsafe {
+        for x in vector {
+            let v : f64 = std::intrinsics::fmul_fast(*x,*x);
+            result = std::intrinsics::fadd_fast(result,v); 
+        }
+    }
+    result
+```
+
+It would be nice if the rustc compiler had an option to just apply this globally, so you could use the higher order functions. Also,
+these features are marked as unstable, and likely to remain unstable forever.  This might make it problematic to use this feature for
+any important production project.  Hopefully the Rust maintainers have a plan to make this better.
 
 ### Conclusion
 
