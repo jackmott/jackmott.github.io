@@ -8,7 +8,7 @@ categories: programming
 out to be fast enough.  If it doesn't, you can go back and optimize it later.  His thoughts come in the context of working on games in C/C++. 
 I think these languages, with modern incarnations of their compilers, are especially compatible with this philosophy.  I think that in most higher level
 languages today, there tend to be performance traps where the obvious, idiomatic solution is particularly bad.
-Let's look at an example, comparing F# to C# and to C.
+Let's look at an example, comparing C to a few popular languages.
 
 Pretend we wish to take an array of 32 million numbers, and compute the sum of their squares. The most obvious code for this in C is as follows:
 
@@ -194,7 +194,7 @@ var r = array.map(x => x*x).
 ```
 
 Some consider the higher order functions here the most elegant way to do this, but it is incredibly slow. In this case we can simplify it to just use the reduce method:<br/> 
-`array.reduce( (total,num,index,array) => total+num,0.0)` <br/> which speeds it up to 800ms. Interestingly while you can leave out arguments to callback functions
+`array.reduce( (total,num,index,array) => total+num,0.0)`<br/> which speeds it up to 800ms. Interestingly while you can leave out arguments to callback functions
 and it will still work:<br/> `array.reduce ((total,num) => total+num)`<br/>  this has a sizeable runtime penalty until the JIT has run it a few times.
 
 ### Javascript foreach (node.js) 830ms
