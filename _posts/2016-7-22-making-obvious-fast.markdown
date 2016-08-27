@@ -168,6 +168,7 @@ as part of the language or core library. It is possible to use rust intrinsics t
 write out the loop explicitly:
 
 ### Rust SIMD - 18ms
+
 ``` rust
     let mut result = 0.0;
     unsafe {
@@ -182,6 +183,42 @@ write out the loop explicitly:
 It would be nice if the rustc compiler had an option to just apply this globally, so you could use the higher order functions. Also,
 these features are marked as unstable, and likely to remain unstable forever.  This might make it problematic to use this feature for
 any important production project.  Hopefully the Rust maintainers have a plan to make this better.
+
+### Javascript map reduce (Node.js) 10,985ms
+
+``` javscript
+
+var r = array.map(x => x*x).
+              reduce( (total,num,index,array) => total+num,0.0);
+
+```
+
+Some consider the higher order functions here the most elegant way to do this, but it is incredibly slow. In this case we can simplify it to just use the reduce method  - 
+`array.reduce( (total,num,index,array) => total+num,0.0)` which speeds it up to 800ms. Interestingly while you can leave out arguments to callback functions
+and it will still work: `array.reduce ((total,num) => total+num)`  this has a sizeable runtime penalty.
+
+### Javascript foreach (node.js) 830ms
+
+``` javascript
+    var r = 0.0;
+    array.forEach( (element,index,array) => r += element*element  )
+```
+Slightly less elegant but also a popular idiom in javascript, this speeds up from map reduce a lot, but is still amazingly slow.
+
+### Javascript imperative (node.js) 37ms
+
+``` javascript
+
+    var r = 0.0;
+    for (var j = 0; j < array.length;j++){
+        var x = array[j];
+        r += x*x;
+    }
+
+```
+
+Finally, when we get down to a basic imperative for loop, javascript performs comparably to unvectorized C.
+
 
 ### Conclusion
 
@@ -224,5 +261,13 @@ Jit=RyuJit  GarbageCollection=Concurrent Workstation
 ```
 
 ### Rust Details
-v1.11, --release -O3
+v1.13 Nightly, --release -opt-level=3
+
+### Javascript
+
+### Node Details
+v6.4.0 64bit
+
+
+
 
