@@ -40,7 +40,7 @@ this nasty mess:
     double sum = tsum[0]+tsum[1]+tsum[2]+tsum[3];
 ```
 
-However, notice that the runtime is the same, for the obvious and SIMD versions!  It turns out that the obvious code was automatically turned into SIMD
+However, notice that the runtime is the same for the obvious and SIMD versions!  It turns out that the obvious code was automatically turned into SIMD
 enhanced machine instructions. A process called "Auto vectorization".  Visual C++ is not known for being the most clever of C++ compilers but it still 
 gets this right:
 
