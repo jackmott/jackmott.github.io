@@ -267,6 +267,7 @@ v1.13 Nightly, --release -opt-level=3
 
 ### Node Details
 v6.4.0 64bit
+NODE_ENV=production
 
 
 
