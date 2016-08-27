@@ -193,9 +193,9 @@ var r = array.map(x => x*x).
 
 ```
 
-Some consider the higher order functions here the most elegant way to do this, but it is incredibly slow. In this case we can simplify it to just use the reduce method  - 
+Some consider the higher order functions here the most elegant way to do this, but it is incredibly slow. In this case we can simplify it to just use the reduce method:<br/> 
 `array.reduce( (total,num,index,array) => total+num,0.0)` which speeds it up to 800ms. Interestingly while you can leave out arguments to callback functions
-and it will still work: `array.reduce ((total,num) => total+num)`  this has a sizeable runtime penalty.
+and it will still work:<br/> `array.reduce ((total,num) => total+num)`  this has a sizeable runtime penalty.
 
 ### Javascript foreach (node.js) 830ms
 
