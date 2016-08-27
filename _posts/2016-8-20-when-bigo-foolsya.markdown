@@ -7,7 +7,7 @@ categories: programming
 ---
 
 Big O notation is a great tool.  It allows one to quickly make smart choices among various data structures and algorithms.  But sometimes a casual
-Big O analysis can fool us if we don't think carefully about the impact of constant factors. One such examples comes up very often
+Big O analysis can fool us if we don't think carefully about the impact of constant factors. One such example comes up very often
 when programming on modern CPUs, and that is when choosing between an Array, and a List, or Tree type structure.
 
 
