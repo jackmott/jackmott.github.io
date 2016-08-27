@@ -317,8 +317,9 @@ priorities, but I feel strongly that when the clarity benefit of the abstraction
 By taking time to understand your environment, you will be aware of cases where a faster but equally clear option exists, as is often the case with Array Lists vs Lists.
 
 
-As some food for thought, here are 7 different ways to add up a list of numbers in C#, with their run times and memory costs. Notice how *much* better performing the fastest option is.
-Checked arithmetic is used in all cases to keep the comparison with Linq fair, as it's Sum method uses checked arithmetic. Notice how expensive the most popular method (Linq) is. Notice 
+As some food for thought, here are 7 different ways to add up a list of numbers in C#, with their run times and memory costs. 
+Checked arithmetic is used in all cases to keep the comparison with Linq fair, as it's Sum method uses checked arithmetic. Notice how *much* better performing the fastest option is. 
+Notice how expensive the most popular method (Linq) is. Notice 
 that the `foreach` abstraction works out well with raw Arrays, but not with Array List or Linked List.  Whatever your language and environment of choice is, understand these details so you can 
 make smart default choices. 
 
