@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Making the obvious code fast"
+subtitle: "A tour of Go, Java, C#, F#, Rust, Javascript and C"
 date:   2016-07-22 14:17:27 -0500
 categories: programming
 ---
