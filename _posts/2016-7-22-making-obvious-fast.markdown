@@ -240,7 +240,7 @@ Hopefully the Rust maintainers have a plan to make this better.
 
 ``` javascript
 var sum = values.map(x => x*x).
-              reduce( (total,num,index,array) => total+num,0.0);
+                 reduce( (total,num,index,array) => total+num,0.0);
 ```
 
 ### Javascript reduce (node.js) 800 and then 300 milliseconds
@@ -279,13 +279,16 @@ Finally, when we get down to a basic imperative for loop, javascript performs co
 ### Java Streams Map Sum 138 milliseconds
 
 ``` java
-    double sum = Arrays.stream(values).map(x -> x*x).sum();
+    double sum = Arrays.stream(values).
+                        map(x -> x*x).
+                        sum();
 ```
 
 ### Java Streams Reduce 34 milliseconds
 
 ``` java
-    double sum = Arrays.stream(values).reduce(0,(acc,x) -> acc+x*x);
+    double sum = Arrays.stream(values).
+                        reduce(0,(acc,x) -> acc+x*x);
 ```
 
 Java 8 includes a very nice library called [stream](https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html) which provides higher
@@ -301,7 +304,9 @@ accomplishment:
 ### Java Streams Map Reduce 34 milliseconds 
 
 ``` java
-    double sum = Arrays.stream(values).map(x -> x*x).reduce(0,(acc,x) -> acc+x);
+    double sum = Arrays.stream(values).
+                        map(x -> x*x).
+                        reduce(0,(acc,x) -> acc+x);
 ```
 
 There does not appear to be a way to get SIMD out of Java, either explicitly or via automatic vectorization by the Hotspot JVM.
