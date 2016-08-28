@@ -316,7 +316,7 @@ There does not appear to be a way to get SIMD out of Java, either explicitly or 
 
 ``` go
     sum := 0.0
-    for _,v := range values {
+    for _,v := range values[:] {
         sum = sum +  v*v
     }
 ```
