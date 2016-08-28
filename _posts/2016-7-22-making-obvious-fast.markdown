@@ -314,7 +314,7 @@ There does not appear to be a way to get SIMD out of Java, either explicitly or 
 ### Go for Range 37 milliseconds
 
 ``` go
-    sum = 0.0
+    sum := 0.0
     for _,v := range values {
         sum = sum +  v*v
     }
@@ -322,6 +322,7 @@ There does not appear to be a way to get SIMD out of Java, either explicitly or 
 
 ### Go for loop 37 milliseconds
 ``` go
+    sum := 0.0
     for i := 0; i < len(values); i++ {
         x := values[i]
         sum = sum +  x*x
