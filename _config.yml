@@ -8,8 +8,8 @@
 # Site settings
 title: Code Thoughts
 email: jack.mott@gmail.com
-description: 
-baseurl: "" # the subpath of your site, e.g. /blog
+description: "Thoughts on code"
+repository: jackmott/jackmott.github.io
 url: "https://jackmott.github.io/" # the base hostname & protocol for your site
 twitter_username: PerlinMandleBro
 github_username:  jackmott

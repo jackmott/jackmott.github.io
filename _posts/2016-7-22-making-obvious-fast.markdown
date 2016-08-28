@@ -6,11 +6,32 @@ categories: programming
 ---
 [Jonathan Blow](http://number-none.com/blow/) of "The Witness" fame likes to talk about just typing the obvious code first.  Usually it will turn
 out to be fast enough.  If it doesn't, you can go back and optimize it later.  His thoughts come in the context of working on games in C/C++. 
-I think these languages, with modern incarnations of their compilers, are especially compatible with this philosophy.  I think that in most higher level
-languages today, there tend to be performance traps where the obvious, idiomatic solution is particularly bad.
-Let's look at an example, comparing C to a few popular languages.
+I think these languages, with modern incarnations of their compilers, are especially compatible with this philosophy. Not only are the compilers very 
+mature but they are low level enough that you are forced to do things by hand, and think about what the machine is doing most of the time, especially if
+you stick to C or a 'mostly C' subset of C++. However in most higher level languages, there tend to be performance traps where the obvious, or idiomatic solution is 
+particularly bad.  
 
-Pretend we wish to take an array of 32 million numbers, and compute the sum of their squares. The most obvious code for this in C is as follows:
+What counts as obvious or idiomatic, is of course often a matter of opinion.  The language itself may encourage certain choices
+by making them easier to type, or highlighting them in documentation and teaching materials.  The community that grows up around a language
+may just come to prefer certain constructs and encourage others to use them. It is very common to see programmers encouraged to use
+high level constructs over lower level ones, in the interest of readability and simplicity.  This is a worthy ideal, but often people
+aren't aware of what the cost really is.  Some of these constructs have a much higher cost than people realize.
+
+In this article I will explore a number of languages, with a toy map and reduce example. Within each language, I will explore 
+a number of approaches, ranging from high level to hand coded imperative loops and SIMD operations.  Some of the performance pitfalls I will show may be specific
+to this toy example. With a different toy example, the languages that excel and those that do poorly could be totally different.  This is meant
+merely to explore, and get people thinking about the performance cost of abstractions. For each case I will show code examples so you
+can consider the differences in complexity.
+
+## The Task
+
+We wish to take an array of 32 million 64bit floating point values, and compute the sum of their squares. This will let us explore some
+fundamental abilities of various languages. Their ability to iterate over arrays efficiently, whether they can vectorize basic loops, and 
+whether higher order functions like map and reduce compile to efficient code. When applicable, we will show runtimes of both map and reduce, 
+so we get insight into whether the language can stream higher order functions together, and also we will show the runtime with a single
+reduce/fold operation. 
+
+## The Results
 
 * [Benchmark Details](#benchmark)
 
@@ -24,9 +45,9 @@ Pretend we wish to take an array of 32 million numbers, and compute the sum of t
         sum += v;
     }
 ```
-
-However we can get much trickier, if we thought that this would be a performance critical piece of code, we might use SIMD intrinsics, which requires
-this nasty mess:
+ANSI C is a bare bones language, no higher order functions or loop abstractions exist to even think about, so this imperative loop is what most
+programmers wil turn to to complete this task. If I thought that this would be a performance critical piece of code, I might use SIMD intrinsics, 
+which requires this nasty mess:
 
 ### C - SIMD Explicit - 17 milliseconds
 
@@ -65,9 +86,14 @@ double sum = 0.0;
 Note that to get floating point addition vectorized automatically you have to specify to the compiler that you want 'fast floating point', as floating point
 addition is not associative. Results will be different when vectorized, though they will actually be more accurate, not less. (in this case, maybe all?)
 
-### C# Linq - 260 milliseconds
+### C# Linq Select Sum - 260 milliseconds
 ``` c#
     var sum = values.Select(x => x * x).Sum();
+```
+
+### C# Linq Aggregate - 280 milliseconds
+``` c#
+    var sum = values.Aggregate(0.0,(acc, x) => acc + x * x);
 ```
 
 ### C# - 34 milliseconds
@@ -84,8 +110,9 @@ addition is not associative. Results will be different when vectorized, though t
 ```
 
 Stepping up a level to C#, we have a couple of idiomatic solutions.  Many C# programmers today might use Linq which as you can see is much slower. It also creates a 
-lot of garbage putting more pressure on the garbage collector. The foreach loop is also commonly used, and while it makes use of an enumerator which is slower and 
-produces garbage when used on collections, with an array the C# compiler optimizes it down to a normal for loop. This is nice as it saves you some typing without 
+lot of garbage, putting more pressure on the garbage collector. Oddly, the Aggregate function, which is equivalent to fold or reduce is most other languages, is slower
+despite being a single step instead of two.  The foreach loop in the second example is also commonly used.  While this pattern has big 
+performance pitfalls when used on collections like List&lt;T&gt, with arrays it compiles to efficient code. This is nice as it saves you some typing without 
 runtime penalty. The  runtime here is still twice as slow as the C code, but that is entirely due to not being automatically vectorized.  With the .NET JIT, 
 it is not considered a worthwhile tradeoff to do this particular optimization. With C# you have to take some care with array access in loops, 
 or [bounds checking overhead can be introduced](http://www.codeproject.com/Articles/844781/Digging-Into-NET-Loop-Performance-Bounds-checking). In this case the 
@@ -140,7 +167,30 @@ F# is a functional first language, rather than a pure functional language like H
 map and sum operations together, and avoid iterating over the array twice.  The [Nessos Streams](https://github.com/nessos/Streams) provides this, 
 with a nice performance improvement as a result.
 
-### F# Fast - 18ms
+### F# Fold - 75 milliseconds
+
+``` ocaml
+    let sum = 
+        values
+        |> Array.fold (fun acc x -> acc + x*x) 0.0
+```
+
+When we use a single fold operation, we no longer iterate over the collection twice and allocate extra memory, and runtime improves even more.  Since
+there is no overhead for streaming together multiple higher order functions as there is in the Streams library, it does slightly better.
+
+### F# Imperative - 38 milliseconds
+
+``` ocaml
+    let mutable sum = 0.0
+    for i = 0 to values.Length-1 do
+            let x = values.[i]
+            sum <- sum + x*x            
+```
+
+One of the nice things about F#, is that while it is a functional leaning language, very few barriers are put in your way if you want
+to go imperative for the sake of speed.  Write a normal for loop, and you get the same performance as unvectorized C.
+
+### F# SIMD - 18ms
 
 ``` ocaml
     let sum =
@@ -158,7 +208,7 @@ still be doing a lot of extra work.  This should be possible in principle though
 ### Rust - 34ms
 
 ``` rust
-    let sum = vector.iter().
+    let sum = values.iter().
                 map(|x| x*x).        
                 sum()  
 ```
@@ -170,70 +220,125 @@ write out the loop explicitly:
 ### Rust SIMD - 18ms
 
 ``` rust
-    let mut result = 0.0;
+    let mut sum = 0.0;
     unsafe {
-        for x in vector {
-            let v : f64 = std::intrinsics::fmul_fast(*x,*x);
-            result = std::intrinsics::fadd_fast(result,v); 
+        for v in values {
+            let x : f64 = std::intrinsics::fmul_fast(*v,*v);
+            sum = std::intrinsics::fadd_fast(sum,x); 
         }
     }
-    result
+    sum
 ```
 
 It would be nice if the rustc compiler had an option to just apply this globally, so you could use the higher order functions. Also,
 these features are marked as unstable, and likely to remain unstable forever.  This might make it problematic to use this feature for
 any important production project.  Hopefully the Rust maintainers have a plan to make this better.
 
-### Javascript map reduce (Node.js) 10,985ms
+### Javascript map reduce (node.js) 10,000ms
 
-``` javscript
-
-var r = array.map(x => x*x).
+``` javascript
+var sum = values.map(x => x*x).
               reduce( (total,num,index,array) => total+num,0.0);
-
 ```
 
-Some consider the higher order functions here the most elegant way to do this, but it is incredibly slow. In this case we can simplify it to just use the reduce method:<br/> 
-`array.reduce( (total,num,index,array) => total+num,0.0)`<br/> which speeds it up to 800ms. Interestingly while you can leave out arguments to callback functions
-and it will still work:<br/> `array.reduce ((total,num) => total+num)`<br/>  this has a sizeable runtime penalty until the JIT has run it a few times.
-
-### Javascript foreach (node.js) 830ms
+### Javascript reduce (node.js) 800 and then 300 milliseconds
 
 ``` javascript
-    var r = 0.0;
-    array.forEach( (element,index,array) => r += element*element  )
+var sum = values.reduce( (total,num,index,array) => total+num*num,0.0)
 ```
-Slightly less elegant but also a popular idiom in javascript, this speeds up from map reduce a lot, but is still amazingly slow.
 
-### Javascript imperative (node.js) 37ms
+It is common to see these higher order javascript functions suggested as the most elegant way to do this, but it is incredibly slow. Simplifying the 
+combined map and reduce improves runtime by an order of magnitude to 800ms, though after 3 or 4 iterations the JIT does some magic and runtime
+drops to 300ms thereafter.  This represents the first time I have seen any substantive JIT optimization happen during runtime in the wild!  
+
+### Javascript foreach (node.js) 800 and then 300 milliseconds
+
+``` javascript
+    var sum = 0.0;
+    array.forEach( (element,index,array) => sum += element*element  )
+```
+Slightly less elegant but also a popular idiom in javascript, this is faster than map and reduce, but is still amazingly slow. Again, after
+3 or 4 iterations the JIT does some magic and it speeds up from around 800 to 300 milliseconds.
+
+### Javascript imperative (node.js) 37 milliseconds
 
 ``` javascript
 
-    var r = 0.0;
-    for (var j = 0; j < array.length;j++){
-        var x = array[j];
-        r += x*x;
+    var sum = 0.0;
+    for (var i = 0; i < values.length;i++){
+        var x = values[i];
+        sum += x*x;
     }
 
 ```
 
 Finally, when we get down to a basic imperative for loop, javascript performs comparably to unvectorized C.
 
+### Java Streams Map Sum 138 milliseconds
+
+``` java
+    double sum = Arrays.stream(values).map(x -> x*x).sum();
+```
+
+### Java Streams Reduce 34 milliseconds
+
+``` java
+    double sum = Arrays.stream(values).reduce(0,(acc,x) -> acc+x*x);
+```
+
+Java 8 includes a very nice library called [stream](https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html) which provides higher
+order functions over collections in a lazy evaluated manner, similar to the F# Nessos streams library and Rust. Given that this is a lazy evaluated system, it is
+odd that there is such a performance difference between map then sum and a single reduction.  The reduce function is compiling down to the equivalent of unvectorized C,
+but the map then sum is not even close. It turns out that the `sum()` method on `DoubleStream`  "may be implemented using compensated summation or other technique to reduce the error bound in the numerical sum compared to a simple summation of double values."
+A nice feature, but not clearly communicated by the method name!  If we tweak the java code to do normal summation the runtime remains as fast as unvectorzied C, a nice 
+accomplishment:
+
+### Java Streams Map Reduce 34 milliseconds 
+
+``` java
+    double sum = Arrays.stream(values).map(x -> x*x).reduce(0,(acc,x) -> acc+x);
+```
+
+There does not appear to be a way to get SIMD out of Java, either explicitly or via automatic vectorization by the Hotspot JVM.
+
+### Go for Range 134 milliseconds
+
+``` go
+    sum = 0.0
+    for _,v := range values {
+        sum = sum +  v*v
+    }
+```
+
+### Go for loop 36 milliseconds
+``` go
+    for i := 0; i < len(values); i++ {
+        x := values[i]
+        sum = sum +  x*x
+    }
+```
+
+Go has good performance with the imperative loop, again approaching unvectorized C as is the case with most languages. When using
+the range idiom performance is quit bad.  Given how ranges are so common and Go is described as fast, I'm a little surprised at this
+one. If I am doing something wrong, please send me an email.  Auto vectorization and SIMD support of any kind appear to be completely
+not on the Go radar.  There are no map/reduce/fold higher order functions in the standard library, so we can't compare them.
 
 ### Conclusion
 
-I'm not picking on F#, every high level language seems to have similar issues where the obvious, encouraged, pleasant coding style leads to performance pitfalls. 
-In Java, for instance, everything is objects, and objects all allocate on the heap (unless the JIT does some work at runtime to determine it doesn't 
+I have shown some performance pitfalls in various languages here.  One should not read too much into this as an argument for general performance of these languages.
+Every language has some pitfalls where the preferred or easiest approaches to solving a problem can lead to performance pitfalls. 
+In Java, for instance, everything is objects. Objects all allocate on the heap (unless the JIT does some work at runtime to determine it doesn't 
 need to go on the heap, but that isn't a freebie).  Since Java is also a garbage collected language, this can lead to performance pitfalls when
-you type the obvious code.  With experience, you can learn about these pitfalls and do work to avoid them, just like you can avoid the F# 
-pitfalls above.  But even then, you have to take extra care, and type extra code to do that.  This is partially purpose defeating, since high level 
-languages are supposed to let you type less, and get things working faster.
+you type the obvious code.  With experience, you can learn about these pitfalls and do work to avoid them, just like you can avoid pitfalls of Linq in C#, by not using it, 
+or the pitfalls of F# by using Stream or SIMD libraries instead of the core ones.  But even then, you have to take extra care, and type extra code, or take on more 
+dependencies to do that.  This is partially purpose defeating, since high level languages are supposed to let you type less, and get things working faster.
 
 What I would like to see is more of an attitude change among high level language designers and their communities.  None of the issues above need to exist.
-Java could (and will, soon) provide value types (as C# does) to make it less painful to avoid GC pressure if you use lots of small, short lived constructs.
-F# could provide Streams as part of the core library (as Java does).  .NET could auto vectorize code in the JIT (as Java does, to a degree) and/or provide more 
-complete coverage of SIMD instructions in the Vector library.  We, the community, can help by providing libraries and [submitting PRs](https://jackmott.github.io/programming/2016/08/13/adventures-in-fsharp.html)
- to make the obvious code faster.  Time and energy will be saved, batteries will last longer, users will be happier.
+Java could (and will, soon) provide value types (as C# does) to make it less painful to avoid GC pressure if you use lots of small, short lived constructs. Go
+could provide SIMD support, either via a SIMD library or auto vectorization. F# could provide efficient Streams as part of the core library like Java does.  .NET could auto vectorize 
+code in the JIT and/or provide more complete coverage of SIMD instructions in the Vector library.  We, the community, can help by providing libraries 
+and [submitting PRs](https://jackmott.github.io/programming/2016/08/13/adventures-in-fsharp.html) to make the obvious code faster.  Time and energy will be saved, 
+batteries will last longer, users will be happier.
 
 
 ### Benchmark Details <a name="benchmark"></a>
@@ -260,15 +365,18 @@ Jit=RyuJit  GarbageCollection=Concurrent Workstation
 
 ```
 
+### C Details
+Visual Studio 2015 Update 3, fast floating point, 64 bit, AVX2 instructions enabled, all speed optimizations on
+
 ### Rust Details
 v1.13 Nightly, --release -opt-level=3
 
-### Javascript
-
-### Node Details
+### Javascript/Node Details
 v6.4.0 64bit
 NODE_ENV=production
 
+### Java Details
+Oracle Java 64bit version 8 update 102
 
-
-
+### Go Details
+Go 1.7
