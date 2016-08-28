@@ -6,7 +6,7 @@ categories: programming
 ---
 [Jonathan Blow](http://number-none.com/blow/) of "The Witness" fame likes to talk about just typing the obvious code first.  Usually it will turn
 out to be fast enough.  If it doesn't, you can go back and optimize it later.  His thoughts come in the context of working on games in C/C++. 
-I think these languages, with modern incarnations of their compilers, are especially compatible with this philosophy. Not only are the compilers very 
+I think these languages, with modern incarnations of their compilers, are compatible with this philosophy. Not only are the compilers very 
 mature but they are low level enough that you are forced to do things by hand, and think about what the machine is doing most of the time, especially if
 you stick to C or a 'mostly C' subset of C++. However in most higher level languages, there tend to be performance traps where the obvious, or idiomatic solution is 
 particularly bad.  
@@ -27,9 +27,9 @@ can consider the differences in complexity.
 
 We wish to take an array of 32 million 64bit floating point values, and compute the sum of their squares. This will let us explore some
 fundamental abilities of various languages. Their ability to iterate over arrays efficiently, whether they can vectorize basic loops, and 
-whether higher order functions like map and reduce compile to efficient code. When applicable, we will show runtimes of both map and reduce, 
-so we get insight into whether the language can stream higher order functions together, and also we will show the runtime with a single
-reduce/fold operation. 
+whether higher order functions like map and reduce compile to efficient code. When applicable, I will show runtimes of both map and reduce, 
+so we get insight into whether the language can stream higher order functions together, and also the runtime with a single
+reduce or fold operation. 
 
 ## The Results
 
@@ -96,7 +96,7 @@ addition is not associative. Results will be different when vectorized, though t
     var sum = values.Aggregate(0.0,(acc, x) => acc + x * x);
 ```
 
-### C# - 34 milliseconds
+### C# for loop - 34 milliseconds
 
 ``` c#
     double sum = 0.0;
@@ -110,9 +110,9 @@ addition is not associative. Results will be different when vectorized, though t
 ```
 
 Stepping up a level to C#, we have a couple of idiomatic solutions.  Many C# programmers today might use Linq which as you can see is much slower. It also creates a 
-lot of garbage, putting more pressure on the garbage collector. Oddly, the Aggregate function, which is equivalent to fold or reduce is most other languages, is slower
+lot of garbage, putting more pressure on the garbage collector. Oddly, the Aggregate function, which is equivalent to fold or reduce in most other languages, is slower
 despite being a single step instead of two.  The foreach loop in the second example is also commonly used.  While this pattern has big 
-performance pitfalls when used on collections like List&lt;T&gt, with arrays it compiles to efficient code. This is nice as it saves you some typing without 
+performance pitfalls when used on collections like List&lt;T&gt;, with arrays it compiles to efficient code. This is nice as it saves you some typing without 
 runtime penalty. The  runtime here is still twice as slow as the C code, but that is entirely due to not being automatically vectorized.  With the .NET JIT, 
 it is not considered a worthwhile tradeoff to do this particular optimization. With C# you have to take some care with array access in loops, 
 or [bounds checking overhead can be introduced](http://www.codeproject.com/Articles/844781/Digging-Into-NET-Loop-Performance-Bounds-checking). In this case the 
@@ -134,7 +134,7 @@ arithmetic on sum, though this has almost immeasurable impact on runtime.
     }
 ```
 
-We can, however, explicitly use SIMD instructions, and achieve performance nearly identical to C.  An advantage here for C# is that the SIMD code is a
+While the .NET JIT won't do it automatically, we can explicitly use some SIMD instructions, and achieve performance nearly identical to C.  An advantage here for C# is that the SIMD code is a
 bit less nasty than using intrinsics, and that particular instructions whether they be AVX2, SSE2, NEON, or whatever the hardware supports, can be decided
 upon at runtime.  Whereas the C code above would require separate compilation for each architecture. A disadvantage for C# is that not all SIMD instructions
 are exposed by the Vector library, so something like [SIMD enhanced noise functions](https://github.com/Auburns/FastNoiseSIMD) can't be done with nearly the
@@ -164,7 +164,7 @@ on an application is likely to be worse than this micro benchmark would suggest.
 ```
 
 F# is a functional first language, rather than a pure functional language like Haskell. If you do happen to use pure functions, you can stream your
-map and sum operations together, and avoid iterating over the array twice.  The [Nessos Streams](https://github.com/nessos/Streams) provides this, 
+map and sum operations together, and avoid iterating over the array twice.  The [Nessos Streams](https://github.com/nessos/Streams) library provides this, 
 with a nice performance improvement as a result.
 
 ### F# Fold - 75 milliseconds
@@ -200,7 +200,7 @@ to go imperative for the sake of speed.  Write a normal for loop, and you get th
 
 Now to get serious. First we use fold, so that we can combine the summing and squaring into a single pass. Then we use the
 [SIMDArray extensions](https://github.com/jackmott/SIMDArray) that I have been working on which let you take advantage
-of SIMD instructions with more obvious F# style.  Performance here is great, nearly as fast as C, but it took a lot of work to get here.
+of SIMD with more idiomatic F#.  Performance here is great, nearly as fast as C, but it took a lot of work to get here.
 At the moment there is no way to combine the lazy stream optimization with the SIMD ones. If you want to filter->map->reduce you will
 still be doing a lot of extra work.  This should be possible in principle though. Please submit a PR!
 
@@ -213,8 +213,9 @@ still be doing a lot of extra work.  This should be possible in principle though
                 sum()  
 ```
 
-A late addition to this article, Rust achieves impressive numbers with the most obvious approach. This is super cool. I feel that this behavior should be the goal for any language offering these kinds of higher order functions 
-as part of the language or core library. It is possible to use rust intrinsics to get the same speed as the vectorized C code here, but to use those you have to
+Rust achieves impressive numbers with the most obvious approach. This is super cool. I feel that this behavior should be the goal for any language 
+offering these kinds of higher order functions as part of the language or core library. Using a traditional for loop or a 'for x in y' style loop
+is also just as fast. It is also possible to use rust intrinsics to get the same speed as the vectorized C code here, but to use those you have to 
 write out the loop explicitly:
 
 ### Rust SIMD - 18ms
@@ -232,7 +233,8 @@ write out the loop explicitly:
 
 It would be nice if the rustc compiler had an option to just apply this globally, so you could use the higher order functions. Also,
 these features are marked as unstable, and likely to remain unstable forever.  This might make it problematic to use this feature for
-any important production project.  Hopefully the Rust maintainers have a plan to make this better.
+any important production project.  It would also be nice if the unsafe block was not required. 
+Hopefully the Rust maintainers have a plan to make this better.
 
 ### Javascript map reduce (node.js) 10,000ms
 
@@ -289,7 +291,10 @@ Finally, when we get down to a basic imperative for loop, javascript performs co
 Java 8 includes a very nice library called [stream](https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html) which provides higher
 order functions over collections in a lazy evaluated manner, similar to the F# Nessos streams library and Rust. Given that this is a lazy evaluated system, it is
 odd that there is such a performance difference between map then sum and a single reduction.  The reduce function is compiling down to the equivalent of unvectorized C,
-but the map then sum is not even close. It turns out that the `sum()` method on `DoubleStream`  "may be implemented using compensated summation or other technique to reduce the error bound in the numerical sum compared to a simple summation of double values."
+but the map then sum is not even close. It turns out that the `sum()` method on `DoubleStream`:
+
+>may be implemented using compensated summation or other technique to reduce the error bound in the numerical sum compared to a simple summation of double values.
+
 A nice feature, but not clearly communicated by the method name!  If we tweak the java code to do normal summation the runtime remains as fast as unvectorzied C, a nice 
 accomplishment:
 
@@ -301,7 +306,7 @@ accomplishment:
 
 There does not appear to be a way to get SIMD out of Java, either explicitly or via automatic vectorization by the Hotspot JVM.
 
-### Go for Range 134 milliseconds
+### Go for Range 37 milliseconds
 
 ``` go
     sum = 0.0
@@ -310,7 +315,7 @@ There does not appear to be a way to get SIMD out of Java, either explicitly or 
     }
 ```
 
-### Go for loop 36 milliseconds
+### Go for loop 37 milliseconds
 ``` go
     for i := 0; i < len(values); i++ {
         x := values[i]
@@ -318,10 +323,9 @@ There does not appear to be a way to get SIMD out of Java, either explicitly or 
     }
 ```
 
-Go has good performance with the imperative loop, again approaching unvectorized C as is the case with most languages. When using
-the range idiom performance is quit bad.  Given how ranges are so common and Go is described as fast, I'm a little surprised at this
-one. If I am doing something wrong, please send me an email.  Auto vectorization and SIMD support of any kind appear to be completely
-not on the Go radar.  There are no map/reduce/fold higher order functions in the standard library, so we can't compare them.
+Go has good performance with the both the usual imperative loop and their 'range' idiom which is like a 'foreach' in other languages.   
+Auto vectorization and SIMD support of any kind appear to be completely not on the Go radar.  There are no map/reduce/fold higher order functions 
+in the standard library, so we can't compare them.  Go does a good thing here by not providing a slow path at all.
 
 ### Conclusion
 
@@ -343,8 +347,8 @@ batteries will last longer, users will be happier.
 
 ### Benchmark Details <a name="benchmark"></a>
 
-All benchmarks run with the latest Microsoft compiler for each language, multiple trials, 64 bit, release mode, with all settings set for maximum speed, with
-JIT warmup time accounted for.
+All benchmarks run with what I believe to be the latest and greatest compilers available for Windows for each language. JIT warmup time is accounted for when
+applicable. If you identify cases where code or compiler/environment choices are sub optimal, email me please. 
 
 #### Environment
 ```ini
