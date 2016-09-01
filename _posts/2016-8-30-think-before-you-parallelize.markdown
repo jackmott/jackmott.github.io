@@ -145,7 +145,7 @@ Method |     Time |
 
  <br/>
 
- [SIMDArray](https://github.com/jackmott/SIMDArray) is 'cheating' here as it also does more advanced SIMD operations, but I include it because I wrote it, so I do what I want.
+ [SIMDArray](https://github.com/jackmott/SIMDArray) is 'cheating' here as it also does SIMD operations, but I include it because I wrote it, so I do what I want.
  All of these out perform core library functions above.
 
 
@@ -180,7 +180,7 @@ which is available in Microsoft Visual C++, GCC, Clang, and other popular C++ co
 This is equivalent to the Parallel.For loop used above in C#, where you identify that you will be aggregating data.  This is actually less typing
 and easier to read too, even if the syntax is odd. How does it perform?
 
-#### 1 million doubles - (result += x*x)
+#### 1 million doubles - (result += x*x)  No SIMD
 
 Method |     Median |  
 ---------------------- |----------- |
@@ -189,12 +189,12 @@ Method |     Median |
 
 <br/> 
 We can see that OpenMP is managing a more efficient abstraction than .NET for this case, managing almost almost a 3x speedup where .NET was actually a bit slower.
-Newer OpenMP implementations available on other compiles can also be directed to do more advanced SIMD instructions in the loop for even more speed increase. That does not seem to be available
-in MS Visual C++, and the usual automatic AVX2 vectorization seems to not happen within the omp loop. Automatic AVX2 vectorization can be done on the single thread
-for loop but it was turned off for these C++ tests. *The C++ compilers does do older SSE SIMD vectorization in all of these cases, as is the case with .NET and Java as well, but
-none of them will do AVX2 by default*
+Newer OpenMP implementations available on other compiles can also be directed to do SIMD vectorization in the loop for even more speed increase. That does not seem to be available
+in MS Visual C++, and the usual automatic vectorization seems to not happen within the omp loop. Automatic vectorization can be done on the single thread
+for loop but it was turned off for these C++ tests. *The C++ compilers does do older SSE instructions, as is the case with .NET and Java as well, but they only use
+a single lane.  MSVC++ will use all lanes if you specify /fp:fast but only in the non OMP loop*
 
-#### 1 million doubles - (result += sin(x))
+#### 1 million doubles - (result += sin(x))  No SIMD
 
 Method |     Median |  
 ---------------------- |----------- |
@@ -240,7 +240,7 @@ Method |     Median |
 
 <br/>
 
-Java performas right on par with C++ in the first example, but falls behind when using Math.sin().  It appears that this is
+Java performs right on par with C++ in the first example, but falls behind when using Math.sin().  It appears that this is
 not due to the parallel streams, but due to Java using a more accurate sin implementation, rather than calling the
 x86 instruction directly.  This difference may not exist on other hardware. I do not like it when a langauge tells me I
 can't touch the hardware if I want. A Math.NativeSin() would be nice. The streams library overall though has proven to be
@@ -265,7 +265,7 @@ tools with better performance.
 
 ## Aggregated Testing Results
 
-#### 1 million doubles ( result += x*x)  No AVX2 ( Except SIMDArray)
+#### 1 million doubles ( result += x*x)  No SIMD ( Except SIMDArray)
 
 Method |     Time |  Lines Of Code
 ---------------------- |----------- | | ---|
@@ -281,7 +281,7 @@ Method |     Time |  Lines Of Code
 
 <br/>
 
-#### 1 million doubles ( result += sin(x))  No AVX2
+#### 1 million doubles ( result += sin(x))  No SIMD
 
 Method |     Time |  Lines Of Code
 ---------------------- |----------- | | ---|

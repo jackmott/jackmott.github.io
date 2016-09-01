@@ -84,8 +84,8 @@ double sum = 0.0;
 	}
 
 ```
-Visual C++ will actually use older SSE SIMD instructions by default, which can do a few operations on two doubles or four floats at a time.
-To get AVX2 instructions used here, which can operate on 4 doubles at a time, you have to specify to the compiler that you want 'fast floating point'
+
+To get the SIMD instructions used here, which can operate on 4 doubles at a time, you have to specify to the compiler that you want 'fast floating point'
 and specify that you want to target AVX2 instructions as well. Results will be different when vectorized, though they will actually be more 
 accurate, not less. (in this case, maybe all?)
 
@@ -118,8 +118,8 @@ Stepping up a level to C#, we have a couple of idiomatic solutions.  Many C# pro
 lot of garbage, putting more pressure on the garbage collector. Oddly, the Aggregate function, which is equivalent to fold or reduce in most other languages, is slower
 despite being a single step instead of two.  The foreach loop in the second example is also commonly used.  While this pattern has big 
 performance pitfalls when used on collections like List&lt;T&gt;, with arrays it compiles to efficient code. This is nice as it saves you some typing without 
-runtime penalty. The  runtime here is still twice as slow as the C code, but that is entirely due to not being automatically vectorized with AVX2 instructions.  
-With the .NET JIT, it is not considered a worthwhile tradeoff to do this particular optimization, though it does use SSE SIMD here.
+runtime penalty. The  runtime here is still twice as slow as the C code, but that is entirely due to not being automatically vectorized.  
+With the .NET JIT, it is not considered a worthwhile tradeoff to do this particular optimization.
 
 With C# you also have to take some care with array access in loops, 
 or [bounds checking overhead can be introduced](http://www.codeproject.com/Articles/844781/Digging-Into-NET-Loop-Performance-Bounds-checking). In this case the 
@@ -141,7 +141,7 @@ arithmetic on sum, though this has almost immeasurable impact on runtime.
     }
 ```
 
-While the .NET JIT won't do AVX2 SIMD automatically, we can explicitly use some SIMD instructions, and achieve performance nearly identical to C.  An advantage here for C# is that the SIMD code is a
+While the .NET JIT won't do SIMD automatically, we can explicitly use some SIMD instructions, and achieve performance nearly identical to C.  An advantage here for C# is that the SIMD code is a
 bit less nasty than using intrinsics, and that particular instructions whether they be AVX2, SSE2, NEON, or whatever the hardware supports, can be decided
 upon at runtime.  Whereas the C code above would require separate compilation for each architecture. A disadvantage for C# is that not all SIMD instructions
 are exposed by the Vector library, so something like [SIMD enhanced noise functions](https://github.com/Auburns/FastNoiseSIMD) can't be done with nearly the
@@ -316,8 +316,9 @@ accomplishment:
                         reduce(0,(acc,x) -> acc+x);
 ```
 
-There does not appear to be a way to get AVX2 SIMD out of Java, either explicitly or via automatic vectorization by the Hotspot JVM. There are 3rd
-party libraries available that do it by calling C++ code.
+There does not appear to be a way to get SIMD out of Java, either explicitly or via automatic vectorization by the Hotspot JVM. There are 3rd
+party libraries available that do it by calling C++ code. I do see some literature stating that the JVM can and does auto-vectorize, but
+I'm not seeing evidence of that in this case, or when I use a for loop, either.
 
 ### Go for Range 37 milliseconds
 
@@ -338,7 +339,7 @@ party libraries available that do it by calling C++ code.
 ```
 
 Go has good performance with the both the usual imperative loop and their 'range' idiom which is like a 'foreach' in other languages.   
-Auto vectorization using newer SIMD instructions appears to be completely not on the Go radar.  There are no map/reduce/fold higher order functions 
+Neither auto vectorization nor explicit SIMD support  appears to be completely not on the Go radar.  There are no map/reduce/fold higher order functions 
 in the standard library, so we can't compare them.  Go does a good thing here by not providing a slow path at all.
 
 ### Conclusion
@@ -354,8 +355,7 @@ dependencies to do that.  This is partially purpose defeating, since high level 
 What I would like to see is more of an attitude change among high level language designers and their communities.  None of the issues above need to exist.
 Java could (and will, soon) provide value types (as C# does) to make it less painful to avoid GC pressure if you use lots of small, short lived constructs. Go
 could provide more SIMD support, either via a SIMD library or better auto vectorization. F# could provide efficient Streams as part of the core library like Java does. 
- .NET could auto vectorize 
-code with newer SIMD instructions in the JIT and/or provide more complete coverage of SIMD instructions in the Vector library.  We, the community, can help by providing libraries 
+ .NET could auto vectorize  in the JIT and/or provide more complete coverage of SIMD instructions in the Vector library.  We, the community, can help by providing libraries 
 and [submitting PRs](https://jackmott.github.io/programming/2016/08/13/adventures-in-fsharp.html) to make the obvious code faster.  Time and energy will be saved, 
 batteries will last longer, users will be happier.
 
