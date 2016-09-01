@@ -275,7 +275,7 @@ Method |     Time |  Lines Of Code
   NET / F# Nessos Streams | 1.05ms | ~2 |
  .NET Parallel.For | 1.9ms | ~6 | 
  .NET / F# ParallelSeq | 3.1ms |  1 |
- .NET Parallel Linq (Select -> Sum) | 3.3ms | 1 |
+ .NET Parallel Linq (Sum) | 3.3ms | 1 |
  .NET Parallel Linq (Aggregate) | 8ms | 1 |
  
 
@@ -289,7 +289,7 @@ Method |     Time |  Lines Of Code
  .NET / F# Nessos Streams | 6.7ms | ~2 |
   Java Parallel Streams |  7.8 | 1 |
   ParallelFor |  8.5615 ms |   
-  LinqParallel |  9.8497 ms |     
+  Parallel Linq (Sum) |  9.8497 ms |     
  .NET / F# ParallelSeq | 9.9ms |  1 |
  .NET Parallel Linq (Aggregate) | 45.6ms | 1 |
  
