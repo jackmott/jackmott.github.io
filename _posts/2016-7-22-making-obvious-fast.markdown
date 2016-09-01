@@ -90,11 +90,13 @@ and specify that you want to target AVX2 instructions as well. Results will be d
 accurate, not less. (in this case, maybe all?)
 
 ### C# Linq Select Sum - 260 milliseconds
+
 ``` c#
-    var sum = values.Select(x => x * x).Sum();
+    var sum = values.Sum(x => x * x);
 ```
 
 ### C# Linq Aggregate - 280 milliseconds
+
 ``` c#
     var sum = values.Aggregate(0.0,(acc, x) => acc + x * x);
 ```
