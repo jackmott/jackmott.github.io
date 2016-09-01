@@ -189,8 +189,8 @@ Method |     Median |
 
 <br/> 
 We can see that OpenMP is managing a more efficient abstraction than .NET for this case, managing almost almost a 3x speedup where .NET was actually a bit slower.
-Newer OpenMP implementations available on other compiles can also be directed to SIMD-ify the loop for even more speed increase. That does not seem to be available
-in MS Visual C++, and the usual automatic vectorization seems to not happen within the omp loop. Automatic vectorization can be done on the single thread
+Newer OpenMP implementations available on other compiles can also be directed to do more advanced SIMD instructions in the loop for even more speed increase. That does not seem to be available
+in MS Visual C++, and the usual automatic AVX2 vectorization seems to not happen within the omp loop. Automatic AVX2 vectorization can be done on the single thread
 for loop but it was turned off for these C++ tests. *The C++ compilers does do older SSE SIMD vectorization in all of these cases, as is the case with .NET and Java as well, but
 none of them will do AVX2 by default*
 
