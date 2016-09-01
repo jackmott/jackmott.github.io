@@ -68,7 +68,7 @@ in C#, F#, C++ and Java.
     public double LinqParallelSquareSum()
     {
         var localArray = rawArray;
-        return localArray.AsParallel().Select( /*Do Work*/ ).Sum();
+        return localArray.AsParallel().Sum(/* Do Work */);
     }
     
     public double ParallelForSquareSum()
@@ -88,7 +88,7 @@ in C#, F#, C++ and Java.
 Method |    Median | Bytes Allocated/Op |
 ------------------------- |---------- |------------------- |
       Imperative |  1.1138 ms |          29,480.65 |            
-    LinqParallel |  4.1174 ms |         117,802.56 | 
+    LinqParallel |  3.3174 ms |         117,802.56 | 
      ParallelFor |  1.9985 ms |          59,264.27 |
 
 <br/>     
@@ -102,8 +102,8 @@ here. You would need to roll your own function using ThreadPools or perhaps Thre
 Method |     Median |  Bytes Allocated/Op |
 ---------------------- |----------- |------------------- |
       Imperative | 37.1130 ms |         840,522.92 | 
-    LinqParallel |  9.8320 ms |         201,309.77 | 
-     ParallelFor |  8.9615 ms |         204,386.40 |
+    LinqParallel |  9.8497 ms |         225,694.67 | 
+     ParallelFor |  8.5615 ms |         166,386.40 |
 
 <br/>
 With the bigger workload there is now a large improvement by parallelizing. It takes a CPU about 2 orders of magnitude more cycles to perform a sin operation
@@ -127,7 +127,7 @@ A quick rundown of them here:
     array
     |> PSeq.reduce (fun acc x -> acc+x*x)
 
-    (* SIMDArray (uses SIMD as well) *)
+    (* SIMDArray (uses AVX2 SIMD as well) *)
     array
     |> Array.SIMDParallel.fold (fun acc x -> acc + x*x)
                                (fun acc x -> acc + x*x)  
@@ -145,7 +145,7 @@ Method |     Time |
 
  <br/>
 
- [SIMDArray](https://github.com/jackmott/SIMDArray) is 'cheating' here as it also does SIMD operations, but I include it because I wrote it, so I do what I want.
+ [SIMDArray](https://github.com/jackmott/SIMDArray) is 'cheating' here as it also does more advanced SIMD operations, but I include it because I wrote it, so I do what I want.
  All of these out perform core library functions above.
 
 
@@ -191,7 +191,8 @@ Method |     Median |
 We can see that OpenMP is managing a more efficient abstraction than .NET for this case, managing almost almost a 3x speedup where .NET was actually a bit slower.
 Newer OpenMP implementations available on other compiles can also be directed to SIMD-ify the loop for even more speed increase. That does not seem to be available
 in MS Visual C++, and the usual automatic vectorization seems to not happen within the omp loop. Automatic vectorization can be done on the single thread
-for loop but it was turned off for these C++ tests.
+for loop but it was turned off for these C++ tests. *The C++ compilers does do older SSE SIMD vectorization in all of these cases, as is the case with .NET and Java as well, but
+none of them will do AVX2 by default*
 
 #### 1 million doubles - (result += sin(x))
 
@@ -264,7 +265,7 @@ tools with better performance.
 
 ## Aggregated Testing Results
 
-#### 1 million doubles ( result += x*x)  No SIMD ( Except SIMDArray)
+#### 1 million doubles ( result += x*x)  No AVX2 ( Except SIMDArray)
 
 Method |     Time |  Lines Of Code
 ---------------------- |----------- | | ---|
@@ -274,7 +275,7 @@ Method |     Time |  Lines Of Code
   NET / F# Nessos Streams | 1.05ms | ~2 |
  .NET Parallel.For | 1.9ms | ~6 | 
  .NET / F# ParallelSeq | 3.1ms |  1 |
- .NET Parallel Linq (Select -> Sum) | 4.1ms | 1 |
+ .NET Parallel Linq (Select -> Sum) | 3.3ms | 1 |
  .NET Parallel Linq (Aggregate) | 8ms | 1 |
  
  . 
@@ -282,15 +283,15 @@ Method |     Time |  Lines Of Code
 
 <br/>
 
-#### 1 million doubles ( result += sin(x))  No SIMD 
+#### 1 million doubles ( result += sin(x))  No AVX2
 
 Method |     Time |  Lines Of Code
 ---------------------- |----------- | | ---|
   C++ OpenMP | 3.062 ms | ~4 |
  .NET / F# Nessos Streams | 6.7ms | ~2 |
   Java Parallel Streams |  7.8 | 1 |
- .NET Parallel.For | 8.62ms | ~6 |   
- .NET Parallel Linq (Select -> Sum) | 9.6ms | 1 |
+  ParallelFor |  8.5615 ms |   
+  LinqParallel |  9.8497 ms |     
  .NET / F# ParallelSeq | 9.9ms |  1 |
  .NET Parallel Linq (Aggregate) | 45.6ms | 1 |
  

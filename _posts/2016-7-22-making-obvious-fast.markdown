@@ -84,8 +84,10 @@ double sum = 0.0;
 	}
 
 ```
-Note that to get floating point addition vectorized automatically you have to specify to the compiler that you want 'fast floating point', as floating point
-addition is not associative. Results will be different when vectorized, though they will actually be more accurate, not less. (in this case, maybe all?)
+Visual C++ will actually use older SSE SIMD instructions by default, which can do a few operations on two doubles or four floats at a time.
+To get AVX2 instructions used here, which can operate on 4 doubles at a time, you have to specify to the compiler that you want 'fast floating point'
+and specify that you want to target AVX2 instructions as well. Results will be different when vectorized, though they will actually be more 
+accurate, not less. (in this case, maybe all?)
 
 ### C# Linq Select Sum - 260 milliseconds
 ``` c#
@@ -114,8 +116,10 @@ Stepping up a level to C#, we have a couple of idiomatic solutions.  Many C# pro
 lot of garbage, putting more pressure on the garbage collector. Oddly, the Aggregate function, which is equivalent to fold or reduce in most other languages, is slower
 despite being a single step instead of two.  The foreach loop in the second example is also commonly used.  While this pattern has big 
 performance pitfalls when used on collections like List&lt;T&gt;, with arrays it compiles to efficient code. This is nice as it saves you some typing without 
-runtime penalty. The  runtime here is still twice as slow as the C code, but that is entirely due to not being automatically vectorized.  With the .NET JIT, 
-it is not considered a worthwhile tradeoff to do this particular optimization. With C# you have to take some care with array access in loops, 
+runtime penalty. The  runtime here is still twice as slow as the C code, but that is entirely due to not being automatically vectorized with AVX2 instructions.  
+With the .NET JIT, it is not considered a worthwhile tradeoff to do this particular optimization, though it does use SSE SIMD here.
+
+With C# you also have to take some care with array access in loops, 
 or [bounds checking overhead can be introduced](http://www.codeproject.com/Articles/844781/Digging-Into-NET-Loop-Performance-Bounds-checking). In this case the 
 JIT gets it right, and there is no bounds checking overhead. Checked arithmetic is used in the loop body for parity with Linq, which also uses checked
 arithmetic on sum, though this has almost immeasurable impact on runtime.
@@ -135,7 +139,7 @@ arithmetic on sum, though this has almost immeasurable impact on runtime.
     }
 ```
 
-While the .NET JIT won't do it automatically, we can explicitly use some SIMD instructions, and achieve performance nearly identical to C.  An advantage here for C# is that the SIMD code is a
+While the .NET JIT won't do AVX2 SIMD automatically, we can explicitly use some SIMD instructions, and achieve performance nearly identical to C.  An advantage here for C# is that the SIMD code is a
 bit less nasty than using intrinsics, and that particular instructions whether they be AVX2, SSE2, NEON, or whatever the hardware supports, can be decided
 upon at runtime.  Whereas the C code above would require separate compilation for each architecture. A disadvantage for C# is that not all SIMD instructions
 are exposed by the Vector library, so something like [SIMD enhanced noise functions](https://github.com/Auburns/FastNoiseSIMD) can't be done with nearly the
@@ -189,7 +193,7 @@ there is no overhead for streaming together multiple higher order functions as t
 ```
 
 One of the nice things about F#, is that while it is a functional leaning language, very few barriers are put in your way if you want
-to go imperative for the sake of speed.  Write a normal for loop, and you get the same performance as unvectorized C.
+to go imperative for the sake of speed.  Write a normal for loop, and you get the same performance as SSE vectorized C.
 
 ### F# SIMD - 18ms
 
@@ -200,7 +204,7 @@ to go imperative for the sake of speed.  Write a normal for loop, and you get th
 ```
 
 Now to get serious. First we use fold, so that we can combine the summing and squaring into a single pass. Then we use the
-[SIMDArray extensions](https://github.com/jackmott/SIMDArray) that I have been working on which let you take advantage
+[SIMDArray extensions](https://github.com/jackmott/SIMDArray) that I have been working on which let you take full advantage
 of SIMD with more idiomatic F#.  Performance here is great, nearly as fast as C, but it took a lot of work to get here.
 At the moment there is no way to combine the lazy stream optimization with the SIMD ones. If you want to filter->map->reduce you will
 still be doing a lot of extra work.  This should be possible in principle though. Please submit a PR!
@@ -216,7 +220,7 @@ still be doing a lot of extra work.  This should be possible in principle though
 
 Rust achieves impressive numbers with the most obvious approach. This is super cool. I feel that this behavior should be the goal for any language 
 offering these kinds of higher order functions as part of the language or core library. Using a traditional for loop or a 'for x in y' style loop
-is also just as fast. It is also possible to use rust intrinsics to get the same speed as the vectorized C code here, but to use those you have to 
+is also just as fast. It is also possible to use rust intrinsics to get the same speed as the AVX2 vectorized C code here, but to use those you have to 
 write out the loop explicitly:
 
 ### Rust SIMD - 18ms
@@ -275,7 +279,7 @@ Slightly less elegant but also a popular idiom in javascript, this is faster tha
 
 ```
 
-Finally, when we get down to a basic imperative for loop, javascript performs comparably to unvectorized C.
+Finally, when we get down to a basic imperative for loop, javascript performs comparably to SEE vectorized C.
 
 ### Java Streams Map Sum 138 milliseconds
 
@@ -294,12 +298,12 @@ Finally, when we get down to a basic imperative for loop, javascript performs co
 
 Java 8 includes a very nice library called [stream](https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html) which provides higher
 order functions over collections in a lazy evaluated manner, similar to the F# Nessos streams library and Rust. Given that this is a lazy evaluated system, it is
-odd that there is such a performance difference between map then sum and a single reduction.  The reduce function is compiling down to the equivalent of unvectorized C,
+odd that there is such a performance difference between map then sum and a single reduction.  The reduce function is compiling down to the equivalent of SSE vectorized C,
 but the map then sum is not even close. It turns out that the `sum()` method on `DoubleStream`:
 
 >may be implemented using compensated summation or other technique to reduce the error bound in the numerical sum compared to a simple summation of double values.
 
-A nice feature, but not clearly communicated by the method name!  If we tweak the java code to do normal summation the runtime remains as fast as unvectorzied C, a nice 
+A nice feature, but not clearly communicated by the method name!  If we tweak the java code to do normal summation the runtime remains as fast as SSE vectorized C, a nice 
 accomplishment:
 
 ### Java Streams Map Reduce 34 milliseconds 
@@ -310,7 +314,8 @@ accomplishment:
                         reduce(0,(acc,x) -> acc+x);
 ```
 
-There does not appear to be a way to get SIMD out of Java, either explicitly or via automatic vectorization by the Hotspot JVM.
+There does not appear to be a way to get AVX2 SIMD out of Java, either explicitly or via automatic vectorization by the Hotspot JVM. There are 3rd
+party libraries available that do it by calling C++ code.
 
 ### Go for Range 37 milliseconds
 
@@ -331,7 +336,7 @@ There does not appear to be a way to get SIMD out of Java, either explicitly or 
 ```
 
 Go has good performance with the both the usual imperative loop and their 'range' idiom which is like a 'foreach' in other languages.   
-Auto vectorization and SIMD support of any kind appear to be completely not on the Go radar.  There are no map/reduce/fold higher order functions 
+Auto vectorization using newer SIMD instructions appears to be completely not on the Go radar.  There are no map/reduce/fold higher order functions 
 in the standard library, so we can't compare them.  Go does a good thing here by not providing a slow path at all.
 
 ### Conclusion
@@ -346,8 +351,9 @@ dependencies to do that.  This is partially purpose defeating, since high level 
 
 What I would like to see is more of an attitude change among high level language designers and their communities.  None of the issues above need to exist.
 Java could (and will, soon) provide value types (as C# does) to make it less painful to avoid GC pressure if you use lots of small, short lived constructs. Go
-could provide SIMD support, either via a SIMD library or auto vectorization. F# could provide efficient Streams as part of the core library like Java does.  .NET could auto vectorize 
-code in the JIT and/or provide more complete coverage of SIMD instructions in the Vector library.  We, the community, can help by providing libraries 
+could provide more SIMD support, either via a SIMD library or better auto vectorization. F# could provide efficient Streams as part of the core library like Java does. 
+ .NET could auto vectorize 
+code with newer SIMD instructions in the JIT and/or provide more complete coverage of SIMD instructions in the Vector library.  We, the community, can help by providing libraries 
 and [submitting PRs](https://jackmott.github.io/programming/2016/08/13/adventures-in-fsharp.html) to make the obvious code faster.  Time and energy will be saved, 
 batteries will last longer, users will be happier.
 
