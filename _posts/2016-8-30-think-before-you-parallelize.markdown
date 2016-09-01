@@ -294,8 +294,6 @@ Method |     Time |  Lines Of Code
  .NET Parallel Linq (Aggregate) | 45.6ms | 1 |
  
  
-  
-
 <br/>
 
 ## Benchmark Details 
