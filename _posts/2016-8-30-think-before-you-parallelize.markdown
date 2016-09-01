@@ -288,8 +288,8 @@ Method |     Time |  Lines Of Code
   C++ OpenMP | 3.062 ms | ~4 |
  .NET / F# Nessos Streams | 6.7ms | ~2 |
   Java Parallel Streams |  7.8 | 1 |
- .NET Parallel.For |  8.5615 ms |   
- .NET Parallel Linq (Sum) |  9.8497 ms |     
+ .NET Parallel.For |  8.5615 ms |  ~6 |
+ .NET Parallel Linq (Sum) |  9.8497 ms | 1 |     
  .NET / F# ParallelSeq | 9.9ms |  1 |
  .NET Parallel Linq (Aggregate) | 45.6ms | 1 |
  
