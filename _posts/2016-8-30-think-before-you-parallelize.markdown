@@ -278,8 +278,6 @@ Method |     Time |  Lines Of Code
  .NET Parallel Linq (Select -> Sum) | 3.3ms | 1 |
  .NET Parallel Linq (Aggregate) | 8ms | 1 |
  
- . 
-
 
 <br/>
 
