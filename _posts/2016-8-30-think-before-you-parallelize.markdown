@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Think Before You Parallelize"
+subtitle: "A tour of parallel abstractions"
 date:   2016-8-30 14:17:27 -0500
 categories: programming
 ---
