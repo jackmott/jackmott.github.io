@@ -272,7 +272,7 @@ Method |     Time |  Lines Of Code
   .NET / F# SIMDArray | 0.26ms | 1 |
   C++ OpenMP | 0.37 ms | ~5 |
   Java Parallel Streams |  0.37 ms | 1 |
-  NET / F# Nessos Streams | 1.05ms | ~2 |
+ .NET / F# Nessos Streams | 1.05ms | ~2 |
  .NET Parallel.For | 1.9ms | ~6 | 
  .NET / F# ParallelSeq | 3.1ms |  1 |
  .NET Parallel Linq (Sum) | 3.3ms | 1 |
@@ -288,8 +288,8 @@ Method |     Time |  Lines Of Code
   C++ OpenMP | 3.062 ms | ~4 |
  .NET / F# Nessos Streams | 6.7ms | ~2 |
   Java Parallel Streams |  7.8 | 1 |
-  ParallelFor |  8.5615 ms |   
-  Parallel Linq (Sum) |  9.8497 ms |     
+ .NET Parallel.For |  8.5615 ms |   
+ .NET Parallel Linq (Sum) |  9.8497 ms |     
  .NET / F# ParallelSeq | 9.9ms |  1 |
  .NET Parallel Linq (Aggregate) | 45.6ms | 1 |
  
