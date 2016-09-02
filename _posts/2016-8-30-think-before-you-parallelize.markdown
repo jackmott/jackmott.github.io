@@ -255,6 +255,40 @@ pfffftttt (yeah I know about Web Workers)
 
 Rust and Go currently provide no easy loop parallelizing abstractions out of the box, you have to roll your own. OpenMP style
 features [may be in the works for Rust](https://github.com/rust-lang/rfcs/issues/859) though, and 3rd party libraries are available.
+So let's take a look at a nice one called [Rayon](https://github.com/nikomatsakis/rayon) which adds a "par_iter" providing similar
+functions as the regular iter, but in parallel.  The code remains very simple:
+
+```rust
+    
+    // The regular iter
+    vector.iter().map(|&x| /* do work */).sum()
+
+    // Parallel iter
+    vector.par_iter().map(|&x| /* do work */).sum()
+
+```
+
+<br/>
+
+#### 1 million doubles (result += x*x)
+
+Method |     Median |  
+---------------------- |----------- |
+      iter | 1.03 ms | 
+    par_iter |  .4 ms | 
+
+<br/>
+
+#### 1 million doubles (result += Math.sin(x))
+
+Method |     Median |  
+---------------------- |----------- |
+      iter | 9.65 ms | 
+    par_iter |  2.59 ms | 
+
+<br/>
+
+These are excellent results, basically tied with C++, and requiring only a single line of code to express.
 
 ## Summary
 
@@ -273,6 +307,7 @@ Method |     Time |  Lines Of Code
   .NET / F# SIMDArray | 0.26ms | 1 |
   C++ OpenMP | 0.37 ms | ~5 |
   Java Parallel Streams |  0.37 ms | 1 |
+  Rust Rayon | 0.4 ms | 1 | 
  .NET / F# Nessos Streams | 1.05ms | ~2 |
  .NET Parallel.For | 1.9ms | ~6 | 
  .NET / F# ParallelSeq | 3.1ms |  1 |
@@ -285,8 +320,9 @@ Method |     Time |  Lines Of Code
 #### 1 million doubles ( result += sin(x))  No SIMD
 
 Method |     Time |  Lines Of Code
----------------------- |----------- | | ---|
-  C++ OpenMP | 3.062 ms | ~4 |
+---------------------- |----------- | | ---| 
+  C++ OpenMP | 2.56 ms | ~4 |
+  Rust Rayon | 2.59 ms | 1 |
  .NET / F# Nessos Streams | 6.7ms | ~2 |
   Java Parallel Streams |  7.8 | 1 |
  .NET Parallel.For |  8.5615 ms |  ~6 |
