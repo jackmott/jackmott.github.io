@@ -225,7 +225,7 @@ offering these kinds of higher order functions as part of the language or core l
 is also just as fast. It is also possible to use rust intrinsics to get the same speed as the AVX2 vectorized C code here, but to use those you have to 
 write out the loop explicitly:
 
-### Rust SIMD - 18ms
+### Rust SIMD - 17ms
 
 ``` rust
     let mut sum = 0.0;
