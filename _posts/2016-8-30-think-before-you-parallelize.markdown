@@ -251,9 +251,9 @@ excellent, matching C++ in both scalar and parallel varieties.
 
 pfffftttt (yeah I know about Web Workers)
 
-### Rust / Go
+### Rust
 
-Rust and Go currently provide no easy loop parallelizing abstractions out of the box, you have to roll your own. OpenMP style
+Rust provides no easy loop parallelizing abstractions out of the box, you have to roll your own. OpenMP style
 features [may be in the works for Rust](https://github.com/rust-lang/rfcs/issues/859) though, and 3rd party libraries are available.
 So let's take a look at a nice one called [Rayon](https://github.com/nikomatsakis/rayon) which adds a "par_iter" providing similar
 functions as the regular iter, but in parallel.  The code remains very simple:
