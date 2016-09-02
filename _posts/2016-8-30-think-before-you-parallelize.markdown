@@ -200,7 +200,7 @@ a single lane.  MSVC++ will use all lanes if you specify /fp:fast but only in th
 Method |     Median |  
 ---------------------- |----------- |
       ForLoop | 10.625 ms | 
-    ParallelizedForLoop |  3.062 ms | 
+    ParallelizedForLoop |  2.44 ms | 
 
 <br/>
 
@@ -284,7 +284,7 @@ Method |     Median |
 Method |     Median |  
 ---------------------- |----------- |
       iter | 9.65 ms | 
-    par_iter |  2.43 ms | 
+    par_iter |  2.44 ms | 
 
 <br/>
 
