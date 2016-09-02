@@ -228,7 +228,7 @@ sum = Arrays.stream(array).parallel().reduce(0,(acc,x) -> /*Do Work*/);
 Method |     Median |  
 ---------------------- |----------- |
       Stream | 1.03 ms | 
-    Parallel Stream |  0.37 ms | 
+    Parallel Stream |  0.375 ms | 
 
 <br/>
 
@@ -274,8 +274,8 @@ functions as the regular iter, but in parallel.  The code remains very simple:
 
 Method |     Median |  
 ---------------------- |----------- |
-      iter | 1.03 ms | 
-    par_iter |  .4 ms | 
+      iter | 1.05 ms | 
+    par_iter |  .375 ms | 
 
 <br/>
 
@@ -284,11 +284,11 @@ Method |     Median |
 Method |     Median |  
 ---------------------- |----------- |
       iter | 9.65 ms | 
-    par_iter |  2.59 ms | 
+    par_iter |  2.43 ms | 
 
 <br/>
 
-These are excellent results, basically tied with C++, and requiring only a single line of code to express.
+These are excellent results, tied with C++, and requiring only a single line of code to express.
 
 ## Summary
 
@@ -305,9 +305,9 @@ tools with better performance.
 Method |     Time |  Lines Of Code
 ---------------------- |----------- | | ---|
   .NET / F# SIMDArray | 0.26ms | 1 |
-  C++ OpenMP | 0.37 ms | ~5 |
-  Java Parallel Streams |  0.37 ms | 1 |
-  Rust Rayon | 0.4 ms | 1 | 
+  Java Parallel Streams |  0.375 ms | 1 |
+  Rust Rayon | 0.375 ms | 1 |  
+  C++ OpenMP | 0.375 ms | ~5 |     
  .NET / F# Nessos Streams | 1.05ms | ~2 |
  .NET Parallel.For | 1.9ms | ~6 | 
  .NET / F# ParallelSeq | 3.1ms |  1 |
@@ -320,9 +320,9 @@ Method |     Time |  Lines Of Code
 #### 1 million doubles ( result += sin(x))  No SIMD
 
 Method |     Time |  Lines Of Code
----------------------- |----------- | | ---| 
-  C++ OpenMP | 2.56 ms | ~4 |
-  Rust Rayon | 2.59 ms | 1 |
+---------------------- |----------- | | ---|
+  Rust Rayon | 2.44 ms | 1 | 
+  C++ OpenMP | 2.44 ms | ~4 |  
  .NET / F# Nessos Streams | 6.7ms | ~2 |
   Java Parallel Streams |  7.8 | 1 |
  .NET Parallel.For |  8.5615 ms |  ~6 |
@@ -364,3 +364,6 @@ Visual Studio 2015 Update 3, Optimizations set for maximum speed, SIMD off
 ### Java Details
 Oracle Java 64bit version 8 update 102
 
+### Rust Details
+rustc 1.13.0-nightly
+build with `cargo rustc --release -- -C lto -C target-cpu=native`
