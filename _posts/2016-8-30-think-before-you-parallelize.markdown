@@ -14,7 +14,7 @@ in the first place.
 
 ## Don't Parallelize when it is already Parallelized
 
-Suppose you are working on a big number crunching function for a website that is a bit of a performance bottleneck. You get the idea to
+Suppose you are working on a big number crunching function for a high traffic website that is a bit of a performance bottleneck. You get the idea to
 parallelize it and it tests much faster on your dev machine with 4 cores. You expect great things on the 24 core production server. However
 once you deploy you find that performance in production is actually slightly worse!  What you forgot was that the web server was already parallelizing 
 things at a higher level, using all 24 production cores to handle multiple requests simultaneously.  When your paralellized function
@@ -22,7 +22,9 @@ fires up, all the other cores are busy with other requests.  So you take the hit
 with no benefit.
 
 On the other hand, if your website was say, a low traffic internal website with only a few dozen hits per day, then the plan to parallelize would
-likely pay off, as there will always be spare cores to crunch the numbers fast.
+likely pay off, as there will always be spare cores to crunch the numbers fast. You have to consider the overall CPU utilization of your webserver,
+and how your parellelized function will interact with the other jobs going on. Will it thrash the L1 cache and slow other things down? Test and
+measure.
 
 Another scenario, say you are working on 3D game, you have some trick physics math where you need to crunch numbers, maybe adding realistic building
 physics to Minecraft.  But separate threads are already handling procedural generation of new chunks, rendering, networking, and player input. If
