@@ -19,7 +19,7 @@ parallelize it and it tests much faster on your dev machine with 4 cores. You ex
 once you deploy you find that performance in production is actually slightly worse!  What you forgot was that the web server was already parallelizing 
 things at a higher level, using all 24 production cores to handle multiple requests simultaneously.  When your paralellized function
 fires up, all the other cores are busy with other requests.  So you take the hit of whatever overhead was required to parallelize the function
-with no benefit.
+with no benefit. 
 
 On the other hand, if your website was say, a low traffic internal website with only a few dozen hits per day, then the plan to parallelize would
 likely pay off, as there will always be spare cores to crunch the numbers fast. You have to consider the overall CPU utilization of your webserver,
