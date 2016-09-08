@@ -9,10 +9,8 @@ layout: default
     <p class="post-meta"><time datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">{{ page.date | date: "%b %-d, %Y" }}</time>{% if page.author %} • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">{{ page.author }}</span></span>{% endif %}</p>
   </header>
   
- 
-  <div class="post-content" itemprop="articleBody">
-     <div class="ad">
-    <!-- codethoughts -->
+  <!-- codethoughts -->
+  <div>
     <ins class="adsbygoogle"
      style="display:block"
      data-ad-client="ca-pub-6894395824483692"
@@ -21,9 +19,9 @@ layout: default
     <script>
       (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
-
   </div>
-    
+    <br/>
+  <div class="post-content" itemprop="articleBody">    
     {{ content }}
   </div>
 
