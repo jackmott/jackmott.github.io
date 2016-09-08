@@ -229,8 +229,8 @@ sum = Arrays.stream(array).parallel().reduce(0,(acc,x) -> /*Do Work*/);
 
 Method |     Median |  
 ---------------------- |----------- |
-      Stream | 1.03 ms | 
-    Parallel Stream |  0.375 ms | 
+      Stream | 1.03ms | 
+    Parallel Stream |  0.375ms -> .8ms| 
 
 <br/>
 
@@ -238,8 +238,8 @@ Method |     Median |
 
 Method |     Median |  
 ---------------------- |----------- |
-      Stream | 34.5 ms | 
-    Parallel Stream |  7.8 ms | 
+      Stream | 34.5ms | 
+    Parallel Stream |  7.8ms -> 14ms | 
 
 <br/>
 
@@ -248,6 +248,12 @@ not due to the parallel streams, but due to Java using a more accurate sin imple
 x86 instruction directly.  This difference may not exist on other hardware. I do not like it when a langauge tells me I
 can't touch the hardware if I want. A Math.NativeSin() would be nice. The streams library overall though has proven to be
 excellent, matching C++ in both scalar and parallel varieties.
+
+#### Update!
+
+Further experiments with Java using the JMH testing framework have shown the parallel streams to exhibit inconsistent performance. 
+Sometimes executing in ~.375ms indefinitely. Sometimes executing that fast for only a few dozens iterations then suddenly taking ~.8ms 
+indefinitely after that. Reasons unknown, if you have a JVM expert and have ideas, please email me.
 
 ### Javascript
 
@@ -306,10 +312,10 @@ tools with better performance.
 
 Method |     Time |  Lines Of Code
 ---------------------- |----------- | | ---|
-  .NET / F# SIMDArray | 0.26ms | 1 |
-  Java Parallel Streams |  0.375 ms | 1 |
-  Rust Rayon | 0.375 ms | 1 |  
-  C++ OpenMP | 0.375 ms | ~5 |     
+  .NET / F# SIMDArray | 0.26ms | 1 |  
+  Rust Rayon | 0.375ms | 1 |  
+  C++ OpenMP | 0.375ms | ~5 |     
+  Java Parallel Streams |  0.375 ms -> 0.8ms | 1 |
  .NET / F# Nessos Streams | 1.05ms | ~2 |
  .NET Parallel.For | 1.9ms | ~6 | 
  .NET / F# ParallelSeq | 3.1ms |  1 |
@@ -323,12 +329,12 @@ Method |     Time |  Lines Of Code
 
 Method |     Time |  Lines Of Code
 ---------------------- |----------- | | ---|
-  Rust Rayon | 2.44 ms | 1 | 
-  C++ OpenMP | 2.44 ms | ~4 |  
+  Rust Rayon | 2.44ms | 1 | 
+  C++ OpenMP | 2.44ms | ~4 |  
  .NET / F# Nessos Streams | 6.7ms | ~2 |
-  Java Parallel Streams |  7.8 | 1 |
- .NET Parallel.For |  8.5615 ms |  ~6 |
- .NET Parallel Linq (Sum) |  9.8497 ms | 1 |     
+  Java Parallel Streams |  7.8ms -> 14ms| 1 |
+ .NET Parallel.For |  8.5615ms |  ~6 |
+ .NET Parallel Linq (Sum) |  9.8497ms | 1 |     
  .NET / F# ParallelSeq | 9.9ms |  1 |
  .NET Parallel Linq (Aggregate) | 45.6ms | 1 |
  
@@ -365,6 +371,7 @@ Visual Studio 2015 Update 3, Optimizations set for maximum speed, SIMD off
 
 ### Java Details
 Oracle Java 64bit version 8 update 102
+Testing done with JMH
 
 ### Rust Details
 rustc 1.13.0-nightly

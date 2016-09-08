@@ -106,11 +106,9 @@ accurate, not less. (in this case, maybe all?)
 ``` c#
     double sum = 0.0;
     foreach (var v in values)
-    {
-        checked {
-            double square = v * v;
-            sum += square;
-        }
+    {       
+        double square = v * v;
+        sum += square;       
     }
 ```
 
@@ -123,8 +121,7 @@ With the .NET JIT, it is not considered a worthwhile tradeoff to do this particu
 
 With C# you also have to take some care with array access in loops, 
 or [bounds checking overhead can be introduced](http://www.codeproject.com/Articles/844781/Digging-Into-NET-Loop-Performance-Bounds-checking). In this case the 
-JIT gets it right, and there is no bounds checking overhead. Checked arithmetic is used in the loop body for parity with Linq, which also uses checked
-arithmetic on sum, though this has almost immeasurable impact on runtime.
+JIT gets it right, and there is no bounds checking overhead. 
 
 ### C# SIMD Explicit - 17 milliseconds
 ``` c#

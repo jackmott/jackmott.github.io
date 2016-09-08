@@ -1,25 +1,19 @@
 ---
 layout: post
-title:  "Performance In The Large"
-subtitle: "Taking out the garbage"
+title:  "Taking out the garbage"
+subtitle: "The cost of allocations"
 date:   2017-9-1 14:17:27 -0500
 categories: programming
 ---
 
-Most of my blog posts so far have been with the performance characteristics small number crunching examples.  While fun and informative, these aren't
-the real hard problems programmers face. If you really need to crunch some numbers in an array fast, you can methodically experiment
-and find your way to a fast solution.  What is hard is performance of overall, larger systems.  You have to worry about the way
-your functions interact with each other, how they interact with the hardware, how they interact with the memory model of your runtime, and
-the operating system.  Performance issues can appear out of these interactions that don't exist in any single function.  Figuring out how
-to make big systems perform well while still being understandable is the real hard problem in programming.  
-
-I won't be solving that problem, I will just be exploring it, and showing some of these kinds of problems and how you can deal with them
-in various languages. I will still use larger toy example this time. I will be creating basic framework for a game in the style of [Minecraft](https://minecraft.net/en/)
-Don't get too excited, there won't be any rendering or anything playable.
+One of the never ending arguments about languages is the pros and cons of garbage collection. Some people hate it because they think it is slow,
+others insist it is fast, some hate that it takes away control from them, others love it for that same reason. I'm going to explore this a bit 
+and show some pros and cons that arise, and how you can deal with them in C#, Java, and C++.  I will be creating basic framework for a game 
+in the style of [Minecraft](https://minecraft.net/en/). Don't get too excited, there won't be any rendering or anything playable.
 
 ## The Naive Approach, in C#
 
-[Link To Gist](link)
+[Link To Gist](https://gist.github.com/jackmott/6d0ba936b24595402b49b6e76137c788)
 
 Above is a link to how many developers might naively being to implement a game like Minecraft. (note, that experienced AAA game devs, their eyes would 
 bleed at this) It is 3d, so of course you have the obligatory Vector class, with obligatory operator overloading so you can do simple 
@@ -83,7 +77,7 @@ After a more serious refactoring:
 
 - 0.1% of CPU time spent in garbage collection
 - 1 MB/s allocations
-- 100ms to load the world
+- 19ms to load the world
 - 0.3ms per tick
 
 
@@ -140,7 +134,7 @@ But what if I refactor to avoid the wasteful allocations in the first place?
 
 - .04% of CPU time spent in garbage collection
 - 1.3 MB/s allocations
-- 125ms to load the world
+- 50ms to load the world
 - 1.18ms per tick
 
 The stats are now very much inline with the refactored .NET code.  While slightly worse, don't read too much into that, I'm not as experienced
@@ -183,6 +177,6 @@ wasteful memory allocation here, with no JVM or .NET tricks to fix it.
 ### Major refactor
 
 -0% of CPU time spent in garbage collection (a bit spent allocating)
--163ms to load the world
+-13ms to load the world
 -1.7ms per tick
 
