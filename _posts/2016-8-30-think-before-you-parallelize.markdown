@@ -253,7 +253,7 @@ excellent, matching C++ in both scalar and parallel varieties.
 
 Further experiments with Java using the JMH testing framework have shown the parallel streams to exhibit inconsistent performance. 
 Sometimes executing in ~.375ms indefinitely. Sometimes executing that fast for only a few dozens iterations then suddenly taking ~.8ms 
-indefinitely after that. Reasons unknown, if you have a JVM expert and have ideas, please email me.
+indefinitely after that. Reasons unknown, if you are a JVM expert and have ideas, please email me.
 
 ### Javascript
 
