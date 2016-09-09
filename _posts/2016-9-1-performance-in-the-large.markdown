@@ -185,7 +185,9 @@ Applying the same tricks as we did in the other languages, so that we aren't all
 ## Performance Comparisons:
 
 A couple of quick graphs showing some performance comparisons. Again, I reiterate not to read these as proof of the performance superiority of any memory 
-management approach. I assure you that any expert in any of these languages could optimize them further than they are here.
+management approach. I assure you that any expert in any of these languages could optimize them further than they are here and I assure you that C++ 
+can be made fastest of all of these.  The point is to show how allocations are expensive in all cases, but in different ways, and how good design brings performance
+into reasonable ranges in all cases.
 
 ### The Naive Approaches (With Vector Fixes in C# and C++)
 
@@ -209,5 +211,6 @@ developers would get even more clever, using object pooling and other techniques
 The main take away here is think about how you work with memory, no matter what language you use.  C# offers some nice tools in value types to make
 this a bit easier.  Java on the other hand uses escape analysis to attempt to "auto struct" things for you. Both of these approaches have pros and cons.
 It is less important to worry about which is best, and more important just to understand how your language works, so the code you type will leverage
-it's strengths, and avoid it's weaknesses.  C++ doesn't totally solve this problem either, allocating too much is one of the primary causes of performance
-problems in C++ code as well.  Manage your memory well.
+it's strengths, and avoid it's weaknesses.  C++ doesn't make allocation free, allocating too much is one of the primary causes of performance
+problems in C++ code as well.  It does give you the most control to make things perform well, but it will be up to you to figure it out.
+Manage your memory well.
