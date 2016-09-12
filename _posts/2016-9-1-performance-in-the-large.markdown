@@ -195,7 +195,18 @@ of all the naive ones.
 - 1.2 seconds to load the world
 - 1.7ms per tick
 
-If anyone would like to take a stab at an optimized Rust version I'll be happy to add it.
+## Rust Refactored
+
+[Link To Gist](https://gist.github.com/jackmott/c6a37ba67b82efdd7da08c43ef271a48)
+
+*This implementation contributed kindly by [Zachary Dremann](https://github.com/Dr-Emann)*
+
+The refactored Rust implementation also performs very well:
+
+- 0% of CPU time spent in garbage collection (but some spent allocating!)
+- 14 milliseconds to load the world
+- 0.7ms per tick
+
 
 
 ## Performance Comparisons:
@@ -217,7 +228,7 @@ the fact is all three implementations are completely unacceptable.
 
 ![Faster](/images/mem-fast.png "Faster")
 
-Notice all 3 languages perform well here, but the garbage collected languages do still have GC pauses, which are a big problem in gaming.  Most game
+Notice all 4 languages perform well here, but the garbage collected languages do still have GC pauses, which are a big problem in gaming.  Most game
 developers would get even more clever, using object pooling and other techniques to try to get allocations down to zero within the main game loop, if possible.
 
 
