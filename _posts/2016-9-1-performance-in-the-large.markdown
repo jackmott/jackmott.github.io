@@ -192,8 +192,8 @@ This was implemented by a newcomer to Rust who attempted a translation of the Na
 of all the naive ones.
 
 - 0% of CPU time spent in garbage collection (but lots spent allocating!)
-- 1.3 seconds to load the world
-- 2.0ms per tick
+- 1.2 seconds to load the world
+- 1.7ms per tick
 
 If anyone would like to take a stab at an optimized Rust version I'll be happy to add it.
 
@@ -230,3 +230,39 @@ It is less important to worry about which is best, and more important just to un
 it's strengths, and avoid it's weaknesses.  C++ doesn't make allocation free, allocating too much is one of the primary causes of performance
 problems in C++ code as well.  It does give you the most control to make things perform well, but it will be up to you to figure it out.
 Manage your memory well.
+
+
+## Benchmark Details 
+
+All benchmarks run with what I believe to be the latest and greatest compilers available for Windows for each language (Debateable for C++). 
+If you identify cases where code or compiler/environment choices are sub optimal, email me please. 
+
+#### Environment
+```ini
+Host Process Environment Information:
+BenchmarkDotNet=v0.9.8.0
+OS=Microsoft Windows NT 6.2.9200.0
+Processor=Intel(R) Core(TM) i7-4712HQ CPU 2.30GHz, ProcessorCount=8
+Frequency=2240907 ticks, Resolution=446.2479 ns, Timer=TSC
+```
+
+#### C# Runtime Details
+```ini
+CLR=MS.NET 4.0.30319.42000, Arch=64-bit RELEASE [RyuJIT]
+GC=Concurrent Workstation
+JitModules=clrjit-v4.6.1590.0
+Type=SIMDBenchmark  Mode=Throughput  Platform=X64  
+Jit=RyuJit  GarbageCollection=Concurrent Workstation  
+
+```
+
+### C++ Details
+Visual Studio 2015 Update 3, Optimizations set for maximum speed, AVX2 Instructions on
+
+### Java Details
+Oracle Java 64bit version 8 update 102
+Testing done with JMH
+
+### Rust Details
+rustc 1.13.0
+build with `cargo rustc --release -- -C lto -C target-cpu=native`
