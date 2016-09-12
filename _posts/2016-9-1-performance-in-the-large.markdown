@@ -201,9 +201,8 @@ If anyone would like to take a stab at an optimized Rust version I'll be happy t
 ## Performance Comparisons:
 
 A couple of quick graphs showing some performance comparisons. Again, I reiterate not to read these as proof of the performance superiority of any memory 
-management approach. I assure you that all of these implementations could optimized further than they are here.  
-The point is to show how allocations are expensive in all cases, but in different ways, and how good design brings performance
-into reasonable ranges in all cases.
+management approach. I assure you that all of these implementations could optimized further than they are here.  The point is to show how allocations are expensive 
+in all cases, but in different ways, and how good design brings performance into reasonable ranges in all cases, though with differing levels of effort.
 
 ### The Naive Approaches (With Vector Fixes in C# and C++)
 
