@@ -79,8 +79,8 @@ After a more serious refactoring:
 
 - 0.1% of CPU time spent in garbage collection
 - 1 MB/s allocations
-- 19ms to load the world
-- 0.98ms per tick
+- 25ms to load the world
+- 0.97ms per tick
 
 A huge difference! Very little time is spent on GC now, world load times are now instant and game ticks now process in under a millisecond.  At this
 point almost nothing happens in a game tic except updating positions of entities, and occasional unloading of one chunk to be replaced by another.
@@ -169,24 +169,40 @@ code gets smaller and simpler, I don't have to worry about memory management as 
 - 737ms to load the world
 - 1.4ms per tick
 
-
 ### Major refactor
 
 [Link To Gist](https://gist.github.com/jackmott/f2fb4d967003f0ca18494ca2cb1e8fe0)
 
-Applying the same tricks as we did in the other languages, so that we aren't allocating so many blocks:
+*C++ implementation improvements courtesy of [Jean-Michaël Celerier](https://gist.github.com/jcelerier)*
+
+Applying the same tricks as we did in the other languages,  so that we aren't allocating so many blocks, and a few other tricks that C++
+gives us the flexibility to do:
 
 - 0% of CPU time spent in garbage collection (a bit spent allocating)
-- 13ms to load the world
-- 1.17ms per tick
+- 8ms to load the world
+- 0.55ms per tick
 
+## Rust naively
+
+[Link To Gist](https://gist.github.com/jackmott/7a235472d74f9a2bbcfc1d6cae5ad7f4)
+
+*This implementation contributed kindly by [Maplicant](https://github.com/Maplicant)*
+
+This was implemented by a newcomer to Rust who attempted a translation of the Naive C# implementation, performance is quite good! fastest
+of all the naive ones.
+
+- 0% of CPU time spent in garbage collection (but lots spent allocating!)
+- 1.3 seconds to load the world
+- 2.0ms per tick
+
+If anyone would like to take a stab at an optimized Rust version I'll be happy to add it.
 
 
 ## Performance Comparisons:
 
 A couple of quick graphs showing some performance comparisons. Again, I reiterate not to read these as proof of the performance superiority of any memory 
-management approach. I assure you that any expert in any of these languages could optimize them further than they are here and I assure you that C++ 
-can be made fastest of all of these.  The point is to show how allocations are expensive in all cases, but in different ways, and how good design brings performance
+management approach. I assure you that all of these implementations could optimized further than they are here.  
+The point is to show how allocations are expensive in all cases, but in different ways, and how good design brings performance
 into reasonable ranges in all cases.
 
 ### The Naive Approaches (With Vector Fixes in C# and C++)
