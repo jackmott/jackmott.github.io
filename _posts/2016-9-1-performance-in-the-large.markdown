@@ -250,8 +250,7 @@ Frequency=2240907 ticks, Resolution=446.2479 ns, Timer=TSC
 ```ini
 CLR=MS.NET 4.0.30319.42000, Arch=64-bit RELEASE [RyuJIT]
 GC=Concurrent Workstation
-JitModules=clrjit-v4.6.1590.0
-Type=SIMDBenchmark  Mode=Throughput  Platform=X64  
+JitModules=clrjit-v4.6.1590.0  
 Jit=RyuJit  GarbageCollection=Concurrent Workstation  
 
 ```
