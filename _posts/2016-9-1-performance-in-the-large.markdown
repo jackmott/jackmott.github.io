@@ -209,7 +209,7 @@ into reasonable ranges in all cases.
 
 ![Naive](/images/mem-slow.png "Naive")
 
-Note the Y Axis here is Log Time. Notice how in all 3 languages performance starts to degrade at the same time, about 1,000 ticks in, probably reflecting when the heap begins to fill up,
+Note the Y Axis here is Log Time. Notice how in all 4 languages performance starts to degrade at the same time, about 1,000 ticks in, probably reflecting when the heap begins to fill up,
 and allocations get expensive for C++, and GC has to kick in more for .NET and Java. While one could bicker about which language is doing best here for eternity,
 the fact is all three implementations are completely unacceptable.
 
