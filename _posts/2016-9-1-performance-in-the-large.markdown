@@ -207,6 +207,10 @@ The refactored Rust implementation also performs very well:
 - 14 milliseconds to load the world
 - 0.7ms per tick
 
+## Go? Haskell?
+
+The [Haskell](https://www.reddit.com/r/haskell/comments/52j2c9/performance_in_the_large_benchmark/) and [Go](https://gist.github.com/dgryski/61763e2ee58d3446b25bbe00b44f974e) 
+communities have gotten into the act too with lots of fun experiments. I won't be able to collate the performance of all of these efforts but they are fun to read up on.
 
 
 ## Performance Comparisons:
