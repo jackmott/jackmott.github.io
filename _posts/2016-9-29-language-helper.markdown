@@ -104,5 +104,9 @@ correct pulls out the indefinitely article for the leading word "steel" but appl
     (* Output: I slept *)
 ```
 
+## Some sample queries
+
+![DemoGif](/images/demo.gif "Demo Gif")
+
 
 
