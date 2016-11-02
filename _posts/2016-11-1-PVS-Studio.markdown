@@ -125,6 +125,9 @@ You can easily forget this, and the operation you were trying to do on the strin
 
 ## Quick Review
 
-This doesn't represent all of the C# capabilities that PVS-Studio has, these are just the issues it found in our project. It integrates nicely with Visual Studio, but you
-can use it standalone as well.  They have a nice evaluation version that let's you try it out for quite a long time.  I find the errors it finds to be much more relevant
-than Resharper's analyses, which are numerous but seem to mostly be stylistic. 
+This doesn't represent all of the C# capabilities that PVS-Studio has, these are just the issues it found in our project. It integrates nicely with Visual Studio (see screenshot below),
+but you can use it standalone as well.  They have a nice evaluation version that let's you try it out for quite a long time.  I find the errors it finds to be much more relevant
+than Resharper's analyses, which are numerous but seem to mostly be stylistic.  There do not appear to be any optimization tips for C# yet, as there are for C++ code, but perhaps
+that is coming in the future. 
+
+![pvs](/images/pvs.png "PVS Visual Studio")
