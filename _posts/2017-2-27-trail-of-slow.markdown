@@ -61,7 +61,7 @@ structures that are as convenient to use as LinkedLists:
 * C++ - std::vector
 * Rust - vec
 
-Even if you are inserting or removing from the front or middle of your collection periodically it is usually still faster overall.  You may also
+Even if you are inserting or removing from the front or middle of your collection periodically it is [usually still faster overall](https://jackmott.github.io/programming/2016/08/20/when-bigo-foolsya.html).  You may also
 consider using a sorted array along with BinarySearch instead of a tree, when applicable.  Think about how you lay out your data structures,
 avoid unnecessary pointer hops. Avoid virtual functions when they aren't really necessary. Understand how branch prediction works so you
 can set your code up for success. [Take some time to learn how memory works](https://www.akkadia.org/drepper/cpumemory.pdf), and you can make better default decisions, and better designs
